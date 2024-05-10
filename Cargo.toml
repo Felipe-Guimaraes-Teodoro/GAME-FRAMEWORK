@@ -1,7 +1,12 @@
 [package]
-name = "game-framework"
+name = "tiny-game-framework"
 version = "0.1.0"
 edition = "2021"
+license = "MIR OR Apache-2.0"
+keywords = ["gamedev", "graphics"]
+description = "Tiny game framework for creating games"
+repository = "https://github.com/Felipe-Guimaraes-Teodoro/GAME-FRAMEWORK"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
