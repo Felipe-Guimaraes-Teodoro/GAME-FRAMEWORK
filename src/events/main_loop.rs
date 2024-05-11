@@ -1,7 +1,7 @@
 extern crate glfw;   
 
 use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
-use glfw::{Action, Context, Key, Window};
+use glfw::{Action, Context, Key};
 
 use super::EventHandler;
 

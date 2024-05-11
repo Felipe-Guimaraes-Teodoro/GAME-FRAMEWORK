@@ -2,15 +2,8 @@ use std::collections::HashMap;
 
 use glfw::Key;
 
-use super::EventLoop;
-
-#[derive(Debug)]
-pub struct KeyHandle {
-    id: usize,
-}
-
 pub struct EventHandler {
-    pub keys_pressed: HashMap<Key, KeyHandle>,
+    pub keys_pressed: HashMap<Key, usize>,
 
 }
 
@@ -20,11 +13,15 @@ impl EventHandler {
     }
 
     pub fn on_key_press(&mut self, key: Key) {
-        let key_handle = KeyHandle { id: self.keys_pressed.len() };
+        let key_handle = self.keys_pressed.len();
         self.keys_pressed.insert(key, key_handle);
     }
 
     pub fn on_key_release(&mut self, key: Key) {
         self.keys_pressed.remove(&key);
+    }
+
+    pub fn on_mouse_move(&mut self, ) {
+
     }
 }

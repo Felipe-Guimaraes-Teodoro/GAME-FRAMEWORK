@@ -1,17 +1,20 @@
 mod graphics;
 mod events;
-use events::{EventHandler, EventLoop};
-use glfw::Action;
+mod utils;
+use events::EventLoop;
+use graphics::Renderer;
+use utils::*;
 
 pub fn run() {
     let mut el = EventLoop::new();
+    let mut renderer = Renderer::new();
 
     while !el.window.should_close() {
         el.update();
+        renderer.update();
 
-        if el.is_key_down(glfw::Key::B) {
-            println!("B is pressed");
+        unsafe {
+            renderer.draw();
         }
-
     }
 }
