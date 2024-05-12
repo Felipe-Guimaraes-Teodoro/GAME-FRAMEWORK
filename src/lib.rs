@@ -1,9 +1,10 @@
 mod graphics;
 mod events;
 mod utils;
-use events::EventLoop;
-use graphics::{test_scene, Mesh, Renderer};
-use utils::*;
+
+pub use graphics::*;
+pub use events::*;
+pub use utils::*;
 
 pub fn run() {
     let mut el = EventLoop::new();

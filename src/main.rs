@@ -2,7 +2,9 @@ mod graphics;
 mod events;
 mod utils;
 
-use tiny_game_framework::*;
+//use tiny_game_framework::*;
+
+use tiny_game_framework::run;
 
 use crate::utils::{lerp, Vector3D};
 
