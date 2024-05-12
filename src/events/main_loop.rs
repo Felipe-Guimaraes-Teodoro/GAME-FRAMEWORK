@@ -21,6 +21,8 @@ impl EventLoop {
     
         window.make_current();
         window.set_key_polling(true);
+
+        gl::load_with(|s| window.get_proc_address(s) );
     
         let mut event_handler = EventHandler::new();
 

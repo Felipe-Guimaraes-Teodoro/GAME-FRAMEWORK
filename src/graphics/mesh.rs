@@ -1,9 +1,10 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use super::Vertex;
+use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
 use gl::*;
 
+#[derive(PartialEq, Debug)]
 pub struct Mesh {
     vertices: Vec<Vertex>,
     indices: Vec<u32>,
@@ -11,13 +12,17 @@ pub struct Mesh {
     pub VAO: u32,
     EBO: u32,
     VBO: u32,
+
+    shader: Shader,
 }
 
 impl Mesh {
     pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
+        let shader = Shader::new_pipeline(DEFAULT_MESH_SHADER_VS, DEFAULT_MESH_SHADER_FS);
         let mut mesh = Mesh {
             vertices, indices,
             VAO: 0, VBO: 0, EBO: 0,
+            shader,
         };
 
         unsafe { mesh.setup_mesh() }
@@ -47,16 +52,32 @@ impl Mesh {
 
         EnableVertexAttribArray(0);
         VertexAttribPointer(0, 3, FLOAT, FALSE, size, offset_of!(Vertex, position) as *const c_void);
-        EnableVertexAttribArray(1);
-        VertexAttribPointer(1, 3, FLOAT, FALSE, size, offset_of!(Vertex, color) as *const c_void);
+        // EnableVertexAttribArray(1);
+        // VertexAttribPointer(1, 3, FLOAT, FALSE, size, offset_of!(Vertex, color) as *const c_void);
 
         BindVertexArray(0);
     }
-    // TODO: shader.rs
-    pub unsafe fn draw(&self, shader: &Shader) {
+    
+    pub unsafe fn draw(&self) {
         BindVertexArray(self.VAO);
-        shader.use_shader();
+        self.shader.use_shader();
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
         BindVertexArray(0);
+        UseProgram(0);
+    }
+}
+
+impl Renderer {
+    pub fn add_mesh(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>) {
+        // before adding a mesh with certain name, 
+        // assure it has not been already added
+        if self.meshes.get(name).is_some() { return };
+
+        let mesh = Mesh::new(vertices, indices);
+        self.meshes.insert(name.to_owned(), mesh);
+    }
+
+    pub fn get_mesh(&mut self, name: &str) -> Option<&mut Mesh> {
+        self.meshes.get_mut(name)
     }
 }

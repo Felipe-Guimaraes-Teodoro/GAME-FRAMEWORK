@@ -4,13 +4,13 @@ pub fn distance(a: f32, b: f32) -> f32{
     return f32::sqrt(a*a + b*b);
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vector2D {
     pub x: f32,
     pub y: f32,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vector3D {
     pub x: f32,
     pub y: f32,
