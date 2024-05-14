@@ -120,3 +120,11 @@ pub unsafe fn check_shader_link_error(program: u32) {
         );
     }
 }
+
+#[macro_export]
+macro_rules! cstr {
+    ($s:expr) => {
+        CString::new($s).expect("CString conversion failed")
+            .as_c_str()
+    };
+}

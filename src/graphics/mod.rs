@@ -11,4 +11,3 @@ pub use mesh::*;
 pub use test_scene::*;
 pub use shader::Shader;
 pub use SHADERS::*;
-

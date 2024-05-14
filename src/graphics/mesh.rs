@@ -1,5 +1,8 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
+use crate::{Vector3D, cstr};
+use std::ffi::CString;
+
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
 use gl::*;
@@ -13,6 +16,8 @@ pub struct Mesh {
     EBO: u32,
     VBO: u32,
 
+    pub position: Vector3D,
+
     shader: Shader,
 }
 
@@ -22,6 +27,7 @@ impl Mesh {
         let mut mesh = Mesh {
             vertices, indices,
             VAO: 0, VBO: 0, EBO: 0,
+            position: Vector3D::ZERO,
             shader,
         };
 
@@ -61,6 +67,7 @@ impl Mesh {
     pub unsafe fn draw(&self) {
         BindVertexArray(self.VAO);
         self.shader.use_shader();
+        self.shader.uniform_vec3f(cstr!("pos"), &self.position);
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
         BindVertexArray(0);
         UseProgram(0);

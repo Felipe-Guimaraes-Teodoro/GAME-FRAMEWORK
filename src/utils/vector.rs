@@ -37,13 +37,15 @@ impl Vector2D {
 }
 
 impl Vector3D {
+    pub const ZERO: Vector3D = Vector3D { x: 0.0, y: 0.0, z: 0.0};
+
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self{
             x, y, z
         }
     }
 
-    // AKA: magnitude, length, module, .....
+    // AKA: distance, length, module, .....
     pub fn magnitude(self) -> f32 {
         return f32::sqrt(self.x*self.x + self.y*self.y + self.z*self.z);
     }
