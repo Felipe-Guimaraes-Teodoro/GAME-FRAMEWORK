@@ -1,6 +1,7 @@
 pub static DEFAULT_MESH_SHADER_VS: &str = r#"
 #version 330 core
 layout (location = 0) in vec3 aPos;
+// layout (location = 1) in vec3 aColor; 
 
 // uniform mat4 model;
 // uniform mat4 view;
@@ -8,8 +9,11 @@ layout (location = 0) in vec3 aPos;
 
 uniform vec3 pos;
 
+// out vec3 fColor;
+
 void main() {
     gl_Position = vec4(aPos + pos, 1.0);
+    // fColor = aColor;
 }
 "#;
 

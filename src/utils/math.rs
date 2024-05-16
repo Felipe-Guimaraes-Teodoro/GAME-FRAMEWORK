@@ -1,4 +1,5 @@
 use std::ops::Add;
+use rand::prelude::*;
 
 pub fn distance(a: f32, b: f32) -> f32{
     return f32::sqrt(a*a + b*b);
@@ -6,6 +7,20 @@ pub fn distance(a: f32, b: f32) -> f32{
 
 pub fn lerp(min: f32, max: f32, t: f32) -> f32{
     return min + (max - min) * t;
+}
+
+// generates a random value T between n1: T and n2: T
+pub fn rand_betw
+<
+    T: std::cmp::PartialOrd +
+    rand::distributions::uniform::SampleUniform,
+>
+(
+    n1: T, 
+    n2: T
+) -> T {
+    let mut r = thread_rng();
+    r.gen_range(n1..n2)
 }
 
 struct SecondOrderDynamics {

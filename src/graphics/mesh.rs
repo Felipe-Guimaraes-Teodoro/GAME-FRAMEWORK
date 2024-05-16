@@ -1,11 +1,11 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{Vector3D, cstr};
+use crate::{bind_buffer, cstr, gen_attrib_pointers, Vector3D};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
-use gl::*;
+use gl::{*, types::GLsizei};
 
 #[derive(PartialEq, Debug)]
 pub struct Mesh {
@@ -41,27 +41,16 @@ impl Mesh {
         GenBuffers(1, &mut self.VBO);
         GenBuffers(1, &mut self.EBO);
 
+
         BindVertexArray(self.VAO);
 
-        BindBuffer(ARRAY_BUFFER, self.VBO);
-
-        let size = (self.vertices.len() * size_of::<Vertex>()) as isize;
-        let data = &self.vertices[0] as *const Vertex as *const c_void;
-        BufferData(ARRAY_BUFFER, size, data, STATIC_DRAW);
-
-        BindBuffer(ELEMENT_ARRAY_BUFFER, self.EBO);
-        let size = (self.indices.len() * size_of::<u32>()) as isize;
-        let data = &self.indices[0] as *const u32 as *const c_void;
-        BufferData(ELEMENT_ARRAY_BUFFER, size, data, STATIC_DRAW);
-
-        let size = size_of::<Vertex>() as i32;
-
-        EnableVertexAttribArray(0);
-        VertexAttribPointer(0, 3, FLOAT, FALSE, size, offset_of!(Vertex, position) as *const c_void);
-        // EnableVertexAttribArray(1);
-        // VertexAttribPointer(1, 3, FLOAT, FALSE, size, offset_of!(Vertex, color) as *const c_void);
+        bind_buffer!(ARRAY_BUFFER, self.VBO, self.vertices);
+        bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
+        // gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 3);
+        gen_attrib_pointers!(Vertex, 0 => position: 3);
 
         BindVertexArray(0);
+    
     }
     
     pub unsafe fn draw(&self) {
