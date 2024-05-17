@@ -9,8 +9,8 @@ use gl::{*, types::GLsizei};
 
 #[derive(PartialEq, Debug)]
 pub struct Mesh {
-    vertices: Vec<Vertex>,
-    indices: Vec<u32>,
+    pub vertices: Vec<Vertex>,
+    pub indices: Vec<u32>,
 
     pub VAO: u32,
     EBO: u32,
@@ -46,8 +46,8 @@ impl Mesh {
 
         bind_buffer!(ARRAY_BUFFER, self.VBO, self.vertices);
         bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
-        // gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 3);
-        gen_attrib_pointers!(Vertex, 0 => position: 3);
+        gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4);
+        // gen_attrib_pointers!(Vertex, 0 => position: 3);
 
         BindVertexArray(0);
     
@@ -64,12 +64,20 @@ impl Mesh {
 }
 
 impl Renderer {
-    pub fn add_mesh(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>) {
+    pub fn add_mesh_from_vertices_and_indices(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>) {
         // before adding a mesh with certain name, 
         // assure it has not been already added
         if self.meshes.get(name).is_some() { return };
 
         let mesh = Mesh::new(vertices, indices);
+        self.meshes.insert(name.to_owned(), mesh);
+    }
+
+    pub fn add_mesh(&mut self, name: &str, mesh:Mesh) {
+        // before adding a mesh with certain name, 
+        // assure it has not been already added
+        if self.meshes.get(name).is_some() { return };
+
         self.meshes.insert(name.to_owned(), mesh);
     }
 

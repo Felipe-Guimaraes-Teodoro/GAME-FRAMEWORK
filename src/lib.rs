@@ -1,3 +1,5 @@
+// #![feature(portable_simd)]
+
 mod graphics;
 mod events;
 mod utils;

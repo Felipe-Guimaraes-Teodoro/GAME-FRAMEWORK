@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::Vector3D;
 
+use crate::utils::Vector4D;
+
 use crate::utils::rand_betw;
 
 use super::Mesh;
@@ -9,14 +11,14 @@ use super::Mesh;
 #[derive(PartialEq, Debug)]
 pub struct Vertex {
     pub position: Vector3D,
-    //pub color: Vector3D,
+    pub color: Vector4D,
 }
 
 impl Vertex {
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(position: Vector3D, color: Vector4D) -> Self {
         Self {
-            position: Vector3D::new(x, y, z),
-            // color: Vector3D::new(rand_betw(0.0, 1.0), rand_betw(0.0, 1.0), rand_betw(0.0, 1.0)),
+            position,
+            color,
         }
     }
 }

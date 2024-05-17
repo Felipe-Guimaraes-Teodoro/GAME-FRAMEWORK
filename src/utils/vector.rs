@@ -17,6 +17,14 @@ pub struct Vector3D {
     pub z: f32,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Vector4D {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+
 impl Vector2D {
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
@@ -64,6 +72,35 @@ impl Vector3D {
         return Vector3D::new(self.x, self.y, self.z)/self.magnitude();
     }
 }
+
+impl Vector4D {
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+        Vector4D { x, y, z, w }
+    }
+
+    pub fn dot(self, other: Vector4D) -> f32 {
+        self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
+    }
+
+    pub fn magnitude(self) -> f32 {
+        (self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w).sqrt()
+    }
+
+    pub fn normalize(self) -> Self {
+        let mag = self.magnitude();
+        if mag > 0.0 {
+            Self {
+                x: self.x / mag,
+                y: self.y / mag,
+                z: self.z / mag,
+                w: self.w / mag,
+            }
+        } else {
+            self
+        }
+    }
+}
+
 
 // some trait implementations for vector operations 
 
@@ -156,5 +193,59 @@ impl Div<f32> for Vector3D {
 
     fn div(self, rhs: f32) -> Self::Output {
         return Vector3D::new(self.x/rhs, self.y/rhs, self.z/rhs);
+    }
+}
+
+// Trait implementations for vector4d
+
+impl Add for Vector4D {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+            w: self.w + other.w,
+        }
+    }
+}
+
+impl Sub for Vector4D {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+            w: self.w - other.w,
+        }
+    }
+}
+
+impl Mul<f32> for Vector4D {
+    type Output = Self;
+
+    fn mul(self, scalar: f32) -> Self {
+        Self {
+            x: self.x * scalar,
+            y: self.y * scalar,
+            z: self.z * scalar,
+            w: self.w * scalar,
+        }
+    }
+}
+
+impl Div<f32> for Vector4D {
+    type Output = Self;
+
+    fn div(self, scalar: f32) -> Self {
+        Self {
+            x: self.x / scalar,
+            y: self.y / scalar,
+            z: self.z / scalar,
+            w: self.w / scalar,
+        }
     }
 }
