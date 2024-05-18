@@ -175,7 +175,7 @@ checksum = "8cc3bcbdb1ddfc11e700e62968e6b4cc9c75bb466464ad28fb61c5b2c964418b"
 
 [[package]]
 name = "tiny-game-framework"
-version = "0.0.131"
+version = "0.0.132"
 dependencies = [
  "gl",
  "glfw",

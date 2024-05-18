@@ -1,6 +1,6 @@
 [package]
 name = "tiny-game-framework"
-version = "0.0.131"
+version = "0.0.132"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 keywords = ["gamedev", "graphics"]
