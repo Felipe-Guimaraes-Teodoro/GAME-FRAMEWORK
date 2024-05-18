@@ -23,6 +23,7 @@ impl EventLoop {
         window.set_key_polling(true);
         window.set_cursor_pos_polling(true);
         window.set_framebuffer_size_polling(true);
+        window.set_mouse_button_polling(true);
 
         gl::load_with(|s| window.get_proc_address(s) );
     
@@ -55,6 +56,30 @@ impl EventLoop {
                 }
                 glfw::WindowEvent::CursorPos(x, y) => {
                     self.event_handler.on_mouse_move(x, y);
+                }
+                glfw::WindowEvent::MouseButton(button, Action::Press, _) => {
+                    match button {
+                        glfw::MouseButton::Button1 => {
+                            self.event_handler.on_lmb_press();
+                        },
+                        glfw::MouseButton::Button2 => {
+                            self.event_handler.on_rmb_press();
+                        },
+
+                        _ => ()
+                    }
+                }
+                glfw::WindowEvent::MouseButton(button, Action::Release, _) => {
+                    match button {
+                        glfw::MouseButton::Button1 => {
+                            self.event_handler.on_lmb_release();
+                        },
+                        glfw::MouseButton::Button2 => {
+                            self.event_handler.on_rmb_release();
+                        },
+
+                        _ => ()
+                    }
                 }
                 glfw::WindowEvent::FramebufferSize(w, h) => {
                     self.event_handler.on_window_resize(w, h);

@@ -61,6 +61,14 @@ impl Mesh {
         BindVertexArray(0);
         UseProgram(0);
     }
+
+    pub fn destroy(&mut self) {
+        unsafe {
+            DeleteVertexArrays(1, &self.VAO);
+            DeleteBuffers(1, &self.VBO);
+            DeleteBuffers(1, &self.EBO);
+        }
+    }
 }
 
 impl Renderer {
@@ -83,5 +91,13 @@ impl Renderer {
 
     pub fn get_mesh(&mut self, name: &str) -> Option<&mut Mesh> {
         self.meshes.get_mut(name)
+    }
+
+    pub fn destroy_mesh(&mut self, name: &str) {
+        if let Some(mesh) = self.meshes.get_mut(name) {
+            mesh.destroy();
+        }
+
+        self.meshes.remove(name);
     }
 }

@@ -11,6 +11,9 @@ pub struct EventHandler {
 
     pub width: f32,
     pub height: f32,
+
+    pub lmb: bool,
+    pub rmb: bool,
 }
 
 impl EventHandler {
@@ -19,7 +22,10 @@ impl EventHandler {
             keys_pressed: HashMap::new(),
             mouse_pos: Vector2D::new(1.0, 1.0),
             width: 1.0,
-            height: 1.0
+            height: 1.0,
+
+            rmb: false,
+            lmb: false,
         }
     }
 
@@ -36,6 +42,20 @@ impl EventHandler {
         self.mouse_pos.x = x as f32;
         self.mouse_pos.y = y as f32;
     }
+
+    pub fn on_lmb_press(&mut self) {
+        self.lmb = true;
+    } 
+    pub fn on_lmb_release(&mut self) {
+        self.lmb = false;
+    } 
+
+    pub fn on_rmb_press(&mut self) {
+        self.rmb = true;
+    } 
+    pub fn on_rmb_release(&mut self) {
+        self.rmb = false;
+    } 
 
     pub fn on_window_resize(&mut self, w: i32, h: i32) {
         self.width = w as f32;

@@ -7,3 +7,6 @@ mod utils;
 pub use graphics::*;
 pub use events::*;
 pub use utils::*;
+
+pub use gl::*;
+pub use glfw::*;

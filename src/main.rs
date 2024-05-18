@@ -6,7 +6,7 @@ mod utils;
 
 use events::EventLoop;
 use gl::{Clear, COLOR_BUFFER_BIT};
-use graphics::{test_scene, Renderer};
+use graphics::Renderer;
 use tiny_game_framework::Matrix4x4;
 
 use crate::utils::{lerp, Vector3D};
@@ -15,7 +15,7 @@ fn main() {
     let mut el = EventLoop::new(500, 500);
     let mut renderer = Renderer::new();
     
-    test_scene(&mut renderer);
+    // test_scene(&mut renderer);
     
     let thread = std::thread::spawn(|| {
         loop {
