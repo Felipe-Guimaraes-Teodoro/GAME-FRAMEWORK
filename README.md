@@ -11,13 +11,14 @@ As of now, the crate aims to prioritize simplicity.
 Example usage:
 
 ```rust 
-use tiny_game_framework::{quad_indices, quad_vertices, EventLoop, Renderer};
+use tiny_game_framework::{Circle, EventLoop, Renderer, Vector3D};
 
 fn main() {
     let mut el = EventLoop::new();
     let mut renderer = Renderer::new();
 
-    renderer.add_mesh("my mesh", quad_vertices(0.5, 0.5), quad_indices());
+    let c = Circle::new(16, Vector3D::ZERO, 0.1, Vector4D::new(0., 0., 0., 0.));
+    c.add_to_renderer("my mesh", &mut renderer);
 
     while !el.window.should_close() {
         el.update();
