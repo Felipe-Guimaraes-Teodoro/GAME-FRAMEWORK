@@ -14,7 +14,7 @@ Example usage:
 use tiny_game_framework::{Circle, EventLoop, Renderer, Vector3D};
 
 fn main() {
-    let mut el = EventLoop::new();
+    let mut el = EventLoop::new(500, 500);
     let mut renderer = Renderer::new();
 
     let c = Circle::new(16, Vector3D::ZERO, 0.1, Vector4D::new(0., 0., 0., 0.));
