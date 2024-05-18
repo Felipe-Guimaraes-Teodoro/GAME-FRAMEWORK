@@ -63,6 +63,9 @@ impl Mesh {
     }
 
     pub fn destroy(&mut self) {
+        // maybe do: BindVertexArray(self.VAO);
+        // delete
+        // BindVertexArray(0);
         unsafe {
             DeleteVertexArrays(1, &self.VAO);
             DeleteBuffers(1, &self.VBO);
