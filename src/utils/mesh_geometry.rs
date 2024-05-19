@@ -31,7 +31,7 @@ impl Quad{
         ];
 
         let indices = vec![0, 2, 1, 2, 3, 1];
-        renderer.add_mesh(name, Mesh::new(vertices, indices));
+        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
 }
 
@@ -78,7 +78,7 @@ impl Circle {
             indices.push((i % self.iterations + 1) as u32);
         }
 
-        renderer.add_mesh(name, Mesh::new(vertices, indices))        
+        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
 }
 
@@ -115,7 +115,7 @@ impl Triangle{
             indices.push(2 as u32);
             // Shamelessly (ok theres a bit of shame) stole my own circle rendering code so I just set it to three vertices
 
-        renderer.add_mesh(name, Mesh::new(vertices, indices))        
+        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap(); 
     }
 }
 
@@ -149,6 +149,6 @@ impl Line{
         ];
 
         let indices = vec![0, 2, 1, 2, 3, 1];
-        renderer.add_mesh(name, Mesh::new(vertices, indices));
+        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
 }

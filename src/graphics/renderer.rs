@@ -9,7 +9,7 @@ use crate::utils::rand_betw;
 
 use super::Mesh;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Vertex {
     pub position: Vector3D,
     pub color: Vector4D,
@@ -27,7 +27,7 @@ impl Vertex {
 pub struct Renderer {
     pub meshes: HashMap<String, Mesh>,
 }
-
+ 
 impl Renderer {
     pub fn new() -> Self {
         Self {
