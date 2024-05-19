@@ -3,7 +3,7 @@
 ## Will eventually contain:
   * Utility for rendering (todo)
   * ECS (todo)
-  * Rapier physics engine integration?
+  * Rapier physics engine integration(collisions, rigidbodies, etc)?
   * This list most likely update frequently as soon as i'm still active on this project 
 
 As of now, the crate aims to prioritize simplicity.
