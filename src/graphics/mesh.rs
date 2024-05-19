@@ -1,11 +1,12 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, gen_attrib_pointers, Vector3D, Vector2D, events::EventLoop};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
 use gl::{*, types::GLsizei};
+use glam::{vec3, Mat4, Quat, Vec3};
 use once_cell::sync::Lazy;
 
 pub static DEFAULT_SHADER: Lazy<Shader> = Lazy::new(|| {
@@ -21,7 +22,9 @@ pub struct Mesh {
     EBO: u32,
     VBO: u32,
 
-    pub position: Vector3D,
+    pub position: Vec3,
+    pub rotation: Quat,
+    pub scale: Vec3,
 
     shader: Shader,
 }
@@ -31,8 +34,10 @@ impl Mesh {
         let mut mesh = Mesh {
             vertices: vertices.to_vec(), indices: indices.to_vec(),
             VAO: 0, VBO: 0, EBO: 0,
-            position: Vector3D::ZERO,        
+            position: Vec3::ZERO,
+            rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
             shader: *DEFAULT_SHADER,
+            scale: Vec3::ONE,
         };
 
         unsafe { mesh.setup_mesh() }
@@ -44,11 +49,11 @@ impl Mesh {
         self.shader = *shader;
     }
 
-    pub fn set_position(&mut self, position: Vector3D){
+    pub fn set_position(&mut self, position: Vec3){
         self.position = position;
     }
 
-    pub fn add_position(&mut self, position: Vector3D){
+    pub fn add_position(&mut self, position: Vec3){
         self.position += position;
     }
 
@@ -74,11 +79,19 @@ impl Mesh {
     
     pub unsafe fn draw(&self, el: &EventLoop) {
         let (w, h) = el.window.get_framebuffer_size();
-        let resolution = Vector3D::new(w as f32, h as f32, 1.0) / 2.0;
+        let resolution = vec3(w as f32, h as f32, 1.0) / 2.0;
+
+        let norm_position = self.position / resolution;
+
+        let model_matrix = 
+            Mat4::from_translation(norm_position) *
+            Mat4::from_quat(self.rotation) *
+            Mat4::from_scale(self.scale);
         
         BindVertexArray(self.VAO);
         self.shader.use_shader();
-        self.shader.uniform_vec3f(cstr!("pos"), &(self.position / resolution));
+        self.shader.uniform_mat4fv(cstr!("model"), &model_matrix);
+        self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
         BindVertexArray(0);
         UseProgram(0);

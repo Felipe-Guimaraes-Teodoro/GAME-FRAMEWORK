@@ -1,10 +1,9 @@
 use gl::*;
 use gl::types::*;
+use glam::{Mat4, Vec3};
 
 use std::ptr;
 use std::ffi::CStr;
-
-use crate::Vector3D;
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct Shader {
@@ -67,16 +66,16 @@ impl Shader {
         Uniform1f(GetUniformLocation(self.id, name.as_ptr()), val);
     }
 
-    // pub unsafe fn uniform_mat4fv(&self, name: &CStr, mat: &Matrix4<f32>) {
-    //     UniformMatrix4fv(
-    //         GetUniformLocation(self.id, name.as_ptr()), 
-    //         1, 
-    //         FALSE, 
-    //         mat.as_ptr()
-    //     );
-    // }
+    pub unsafe fn uniform_mat4fv(&self, name: &CStr, mat: &Mat4) {
+        UniformMatrix4fv(
+            GetUniformLocation(self.id, name.as_ptr()), 
+            1, 
+            FALSE, 
+            mat.as_ref() as *const f32
+        );
+    }
 
-    pub unsafe fn uniform_vec3f(&self, name: &CStr, vec: &Vector3D) {
+    pub unsafe fn uniform_vec3f(&self, name: &CStr, vec: &Vec3) {
         Uniform3f(
             GetUniformLocation(self.id, name.as_ptr()),
             vec.x, vec.y, vec.z

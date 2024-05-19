@@ -1,6 +1,6 @@
 [package]
 name = "tiny-game-framework"
-version = "0.0.132000000001"
+version = "0.0.133"
 authors = ["Felipe <felipeguimaraesteodoro@gmail.com>", "Caio <ferrandis.ca@gmail.com>", "Bob <bob@example.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -13,6 +13,7 @@ readme = "README.md"
 
 [dependencies]
 gl = "0.14.0"
+glam = "0.27.0"
 glfw = "0.55.0"
 once_cell = "1.19.0"
 rand = "0.8.5"

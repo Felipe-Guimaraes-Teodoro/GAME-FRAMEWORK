@@ -1,16 +1,15 @@
+use glam::{vec3, Vec3, Vec4};
 use once_cell::sync::Lazy;
 
-use crate::{graphics::{Mesh, Vertex}, Renderer, Vector3D};
-use crate::utils::Vector4D;
-use crate::utils::Vector2D;
+use crate::{graphics::{Mesh, Vertex}, Renderer};
 
 pub struct Quad{
-    pub size: Vector3D,
-    pub color: Vector4D,
+    pub size: Vec3,
+    pub color: Vec4,
 }
 
 impl Quad{
-    pub fn new(size: Vector3D, color: Vector4D) -> Self{
+    pub fn new(size: Vec3, color: Vec4) -> Self{
         Self{
             size,
             color,
@@ -19,10 +18,10 @@ impl Quad{
 
     pub fn add_to_renderer(&self, name: &str, renderer: &mut Renderer){
         let vertices = vec![
-            Vertex::new(Vector3D::new(0., 0., 0.0), self.color),
-            Vertex::new(Vector3D::new(0., self.size.y, 0.0), self.color),
-            Vertex::new(Vector3D::new(self.size.x, 0., 0.0), self.color),
-            Vertex::new(Vector3D::new(self.size.x, self.size.y, 0.0), self.color),
+            Vertex::new(vec3(0., 0., 0.0), self.color),
+            Vertex::new(vec3(0., self.size.y, 0.0), self.color),
+            Vertex::new(vec3(self.size.x, 0., 0.0), self.color),
+            Vertex::new(vec3(self.size.x, self.size.y, 0.0), self.color),
         ];
 
         let indices = vec![0, 2, 1, 2, 3, 1];
@@ -33,11 +32,11 @@ impl Quad{
 pub struct Circle{
     pub iterations: i32,
     pub radius: f32,
-    pub color: Vector4D,
+    pub color: Vec4,
 }
 
 impl Circle {
-    pub fn new(iterations: i32, radius: f32, color: Vector4D) -> Self{
+    pub fn new(iterations: i32, radius: f32, color: Vec4) -> Self{
         let mut fixed_iterations = iterations;
         if iterations <= 3{
             fixed_iterations = 4;
@@ -55,7 +54,7 @@ impl Circle {
         let pi = std::f32::consts::PI;
         
         for i in 0..self.iterations {
-            vertices.push(Vertex::new(Vector3D::new(f32::sin(2.*pi*i as f32/self.iterations as f32),
+            vertices.push(Vertex::new(vec3(f32::sin(2.*pi*i as f32/self.iterations as f32),
                                                     f32::cos(2.*pi*i as f32/self.iterations as f32),
                                                     1./self.radius)*self.radius,
                                                     self.color));
@@ -73,11 +72,11 @@ impl Circle {
 
 pub struct Triangle{
     pub size: f32,
-    pub color: Vector4D,
+    pub color: Vec4,
 }
 
 impl Triangle{
-    pub fn new(size: f32, color: Vector4D) -> Self{
+    pub fn new(size: f32, color: Vec4) -> Self{
         Self {
             size,
             color,
@@ -88,7 +87,7 @@ impl Triangle{
         let mut vertices = vec![];
         let pi = std::f32::consts::PI;
         for i in 0..3 {
-            vertices.push(Vertex::new(Vector3D::new(f32::sin(2.*pi*i as f32/3. as f32),
+            vertices.push(Vertex::new(vec3(f32::sin(2.*pi*i as f32/3. as f32),
                                                     f32::cos(2.*pi*i as f32/3. as f32),
                                                     1./self.size)*self.size,
                                                     self.color));
@@ -104,14 +103,14 @@ impl Triangle{
 }
 
 pub struct Line{
-    begin: Vector3D,
-    end: Vector3D,
+    begin: Vec3,
+    end: Vec3,
     width: f32,
-    color: Vector4D,
+    color: Vec4,
 }
 
 impl Line{
-    pub fn new(begin: Vector3D, end: Vector3D, width: f32, color: Vector4D) -> Self{
+    pub fn new(begin: Vec3, end: Vec3, width: f32, color: Vec4) -> Self{
         Self{
             begin,
             end,
@@ -122,10 +121,10 @@ impl Line{
 
     pub fn add_to_renderer(&self, name: &str, renderer: &mut Renderer){
         let vertices = vec![
-            Vertex::new(Vector3D::new(self.begin.x+self.width, self.begin.y+self.width, 0.0), self.color),
-            Vertex::new(Vector3D::new(self.end.x+self.width, self.end.y+self.width, 0.0), self.color),
-            Vertex::new(Vector3D::new(self.begin.x-self.width, self.begin.y-self.width, 0.0), self.color),
-            Vertex::new(Vector3D::new(self.end.x-self.width, self.end.y-self.width, 0.0), self.color),
+            Vertex::new(vec3(self.begin.x+self.width, self.begin.y+self.width, 0.0), self.color),
+            Vertex::new(vec3(self.end.x+self.width, self.end.y+self.width, 0.0), self.color),
+            Vertex::new(vec3(self.begin.x-self.width, self.begin.y-self.width, 0.0), self.color),
+            Vertex::new(vec3(self.end.x-self.width, self.end.y-self.width, 0.0), self.color),
         ];
 
         let indices = vec![0, 2, 1, 2, 3, 1];

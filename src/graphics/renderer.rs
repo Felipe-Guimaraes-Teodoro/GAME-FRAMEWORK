@@ -1,11 +1,9 @@
 use std::collections::HashMap;
 
-use crate::Vector2D;
-use crate::Vector3D;
+use glam::{Vec2, Vec3, Vec4};
 
 use crate::EventLoop;
 
-use crate::utils::Vector4D;
 
 use crate::utils::rand_betw;
 
@@ -13,12 +11,12 @@ use super::Mesh;
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Vertex {
-    pub position: Vector3D,
-    pub color: Vector4D,
+    pub position: Vec3,
+    pub color: Vec4,
 }
 
 impl Vertex {
-    pub fn new(position: Vector3D, color: Vector4D) -> Self {
+    pub fn new(position: Vec3, color: Vec4) -> Self {
         Self {
             position,
             color,

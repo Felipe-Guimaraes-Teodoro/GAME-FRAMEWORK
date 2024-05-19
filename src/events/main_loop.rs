@@ -1,10 +1,8 @@
 extern crate glfw;   
 
+use glam::{vec2, Vec2};
 use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
 use glfw::{Action, Context, Key};
-
-use crate::utils::Vector2D;
-use crate::Vector3D;
 
 use super::EventHandler;
 
@@ -42,8 +40,8 @@ impl EventLoop {
         }
     }
 
-    pub fn size(&self) -> Vector2D{
-        Vector2D::new(self.window.get_size().0 as f32, self.window.get_size().1 as f32)
+    pub fn size(&self) -> Vec2 {
+        vec2(self.window.get_size().0 as f32, self.window.get_size().1 as f32)
     }
 
     pub fn update(&mut self) {
@@ -51,7 +49,7 @@ impl EventLoop {
     
         self.glfw.poll_events();
 
-        self.event_handler.scroll = Vector2D::ZERO;
+        self.event_handler.scroll = Vec2::ZERO;
 
         for (_, event) in glfw::flush_messages(&self.events) {
             match event {
@@ -94,7 +92,7 @@ impl EventLoop {
                 }
 
                 glfw::WindowEvent::Scroll(xoff, yoff) => {
-                    self.event_handler.on_scroll_change(Vector2D::new(xoff as f32, yoff as f32));
+                    self.event_handler.on_scroll_change(vec2(xoff as f32, yoff as f32));
                 }
 
                 glfw::WindowEvent::FramebufferSize(w, h) => {

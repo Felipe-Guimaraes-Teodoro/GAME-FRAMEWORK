@@ -1,7 +1,5 @@
 #![allow(deref_nullptr)]
 
-use crate::Vector3D;
-
 #[macro_export]
 macro_rules! gen_attrib_pointers {
     ($struct_name:ident, $($index:expr => $field_name:ident: $dimension:expr),*) => {

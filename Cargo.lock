@@ -61,6 +61,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "glam"
+version = "0.27.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e05e7e6723e3455f4818c7b26e855439f7546cf617ef669d1adedb8669e5cb9"
+
+[[package]]
 name = "glfw"
 version = "0.55.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -175,9 +181,10 @@ checksum = "8cc3bcbdb1ddfc11e700e62968e6b4cc9c75bb466464ad28fb61c5b2c964418b"
 
 [[package]]
 name = "tiny-game-framework"
-version = "0.0.132000000001"
+version = "0.0.133"
 dependencies = [
  "gl",
+ "glam",
  "glfw",
  "once_cell",
  "rand",

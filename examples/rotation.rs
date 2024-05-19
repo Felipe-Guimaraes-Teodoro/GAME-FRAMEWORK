@@ -1,4 +1,4 @@
-use tiny_game_framework::{Circle, EventLoop, Renderer};
+use tiny_game_framework::{EventLoop, Renderer};
 use tiny_game_framework::glam::{Vec2, vec2};
 
 fn main() {

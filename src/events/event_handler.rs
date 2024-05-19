@@ -2,14 +2,14 @@ use std::collections::HashMap;
 
 use glfw::Key;
 
-use crate::utils::Vector2D;
+use glam::{vec2, Vec2};
 
 pub struct EventHandler {
     pub keys_pressed: HashMap<Key, usize>,
 
-    pub mouse_pos: Vector2D,
+    pub mouse_pos: Vec2,
 
-    pub scroll: Vector2D,
+    pub scroll: Vec2,
 
     pub width: f32,
     pub height: f32,
@@ -22,11 +22,11 @@ impl EventHandler {
     pub fn new() -> Self {
         Self { 
             keys_pressed: HashMap::new(),
-            mouse_pos: Vector2D::new(1.0, 1.0),
+            mouse_pos: Vec2::ONE,
             width: 1.0,
             height: 1.0,
 
-            scroll: Vector2D::ZERO,
+            scroll: Vec2::ZERO,
 
             rmb: false,
             lmb: false,
@@ -61,7 +61,7 @@ impl EventHandler {
         self.rmb = false;
     } 
 
-    pub fn on_scroll_change(&mut self, change: Vector2D){
+    pub fn on_scroll_change(&mut self, change: Vec2){
         self.scroll = change;
     }
 
