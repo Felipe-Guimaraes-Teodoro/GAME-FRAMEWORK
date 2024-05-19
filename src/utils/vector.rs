@@ -1,4 +1,4 @@
-use std::{ops::{Add, Div, Mul, Sub}, process::Output};
+use std::{ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign}, process::Output};
 
 pub fn distance(a: f32, b: f32) -> f32{
     return f32::sqrt(a*a + b*b);
@@ -26,6 +26,8 @@ pub struct Vector4D {
 }
 
 impl Vector2D {
+    pub const ZERO: Vector2D = Vector2D { x: 0.0, y: 0.0 };
+
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
@@ -74,6 +76,8 @@ impl Vector3D {
 }
 
 impl Vector4D {
+    pub const ZERO: Vector4D = Vector4D { x: 0.0, y: 0.0, z: 0.0, w: 0.0};
+
     pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
         Vector4D { x, y, z, w }
     }
@@ -104,23 +108,72 @@ impl Vector4D {
 
 // some trait implementations for vector operations 
 
+// trait implementations for Vector2D
 impl Add for Vector2D {
-    type Output = Vector2D;
+    type Output = Self;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        let x = self.x + rhs.x;
-        let y = self.y + rhs.y;
-        return Vector2D::new(x, y);
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl Add<f32> for Vector2D {
+    type Output = Self;
+
+    fn add(self, other: f32) -> Self {
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+        }
+    }
+}
+
+impl Add<i32> for Vector2D {
+    type Output = Self;
+
+    fn add(self, other: i32) -> Self {
+        let other = other as f32;
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+        }
     }
 }
 
 impl Sub for Vector2D {
-    type Output = Vector2D;
+    type Output = Self;
 
-    fn sub(self, rhs: Self) -> Self::Output {
-        let x = self.x - rhs.x;
-        let y = self.y - rhs.y;
-        return Vector2D::new(x, y);
+    fn sub(self, other: Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+impl Sub<f32> for Vector2D {
+    type Output = Self;
+
+    fn sub(self, other: f32) -> Self {
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+        }
+    }
+}
+
+impl Sub<i32> for Vector2D {
+    type Output = Self;
+
+    fn sub(self, other: i32) -> Self {
+        let other = other as f32;
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+        }
     }
 }
 
@@ -140,6 +193,14 @@ impl Mul for Vector2D {
     }
 }
 
+impl Div for Vector2D {
+    type Output = Vector2D;
+
+    fn div(self, rhs: Vector2D) -> Self::Output {
+        return Vector2D::new(self.x/rhs.x, self.y/rhs.y);
+    }
+}
+
 impl Div<f32> for Vector2D {
     type Output = Vector2D;
 
@@ -148,27 +209,134 @@ impl Div<f32> for Vector2D {
     }
 }
 
+impl AddAssign for Vector2D{
+    fn add_assign(&mut self, rhs: Vector2D) -> () {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+
+impl AddAssign<f32> for Vector2D{
+    fn add_assign(&mut self, rhs: f32) -> () {
+        self.x += rhs;
+        self.y += rhs;
+    }
+}
+
+impl SubAssign for Vector2D{
+    fn sub_assign(&mut self, rhs: Vector2D) -> () {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+    }
+}
+
+impl SubAssign<f32> for Vector2D{
+    fn sub_assign(&mut self, rhs: f32) -> () {
+        self.x -= rhs;
+        self.y -= rhs;
+    }
+}
+
+impl MulAssign for Vector2D{
+    fn mul_assign(&mut self, rhs: Vector2D) -> () {
+        self.x *= rhs.x;
+        self.y *= rhs.y;
+    }
+}
+
+impl MulAssign<f32> for Vector2D{
+    fn mul_assign(&mut self, rhs: f32) -> () {
+        self.x *= rhs;
+        self.y *= rhs;
+    }
+}
+
+impl DivAssign for Vector2D{
+    fn div_assign(&mut self, rhs: Vector2D) -> () {
+        self.x /= rhs.x;
+        self.y /= rhs.y;
+    }
+}
+
+impl DivAssign<f32> for Vector2D{
+    fn div_assign(&mut self, rhs: f32) -> () {
+        self.x /= rhs;
+        self.y /= rhs;
+    }
+}
 
 // trait implementations for Vector3D
 impl Add for Vector3D {
-    type Output = Vector3D;
+    type Output = Self;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        let x = self.x + rhs.x;
-        let y = self.y + rhs.y;
-        let z = self.z + rhs.z;
-        return Vector3D::new(x, y, z);
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
+impl Add<f32> for Vector3D {
+    type Output = Self;
+
+    fn add(self, other: f32) -> Self {
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+        }
+    }
+}
+
+impl Add<i32> for Vector3D {
+    type Output = Self;
+
+    fn add(self, other: i32) -> Self {
+        let other = other as f32;
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+        }
     }
 }
 
 impl Sub for Vector3D {
-    type Output = Vector3D;
+    type Output = Self;
 
-    fn sub(self, rhs: Self) -> Self::Output {
-        let x = self.x - rhs.x;
-        let y = self.y - rhs.y;
-        let z = self.z - rhs.z;
-        return Vector3D::new(x, y, z);
+    fn sub(self, other: Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
+impl Sub<f32> for Vector3D {
+    type Output = Self;
+
+    fn sub(self, other: f32) -> Self {
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+        }
+    }
+}
+
+impl Sub<i32> for Vector3D {
+    type Output = Self;
+
+    fn sub(self, other: i32) -> Self {
+        let other = other as f32;
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+        }
     }
 }
 
@@ -188,6 +356,14 @@ impl Mul for Vector3D {
     }
 }
 
+impl Div for Vector3D {
+    type Output = Vector3D;
+
+    fn div(self, rhs: Vector3D) -> Self::Output {
+        return Vector3D::new(self.x/rhs.x, self.y/rhs.y, self.z/rhs.z);
+    }
+}
+
 impl Div<f32> for Vector3D {
     type Output = Vector3D;
 
@@ -196,7 +372,71 @@ impl Div<f32> for Vector3D {
     }
 }
 
-// Trait implementations for vector4d
+impl AddAssign for Vector3D{
+    fn add_assign(&mut self, rhs: Vector3D) -> () {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
+impl AddAssign<f32> for Vector3D{
+    fn add_assign(&mut self, rhs: f32) -> () {
+        self.x += rhs;
+        self.y += rhs;
+        self.z += rhs;
+    }
+}
+
+impl SubAssign for Vector3D{
+    fn sub_assign(&mut self, rhs: Vector3D) -> () {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z;
+    }
+}
+
+impl SubAssign<f32> for Vector3D{
+    fn sub_assign(&mut self, rhs: f32) -> () {
+        self.x -= rhs;
+        self.y -= rhs;
+        self.z -= rhs;
+    }
+}
+
+impl MulAssign for Vector3D{
+    fn mul_assign(&mut self, rhs: Vector3D) -> () {
+        self.x *= rhs.x;
+        self.y *= rhs.y;
+        self.z *= rhs.z;
+    }
+}
+
+impl MulAssign<f32> for Vector3D{
+    fn mul_assign(&mut self, rhs: f32) -> () {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+    }
+}
+
+impl DivAssign for Vector3D{
+    fn div_assign(&mut self, rhs: Vector3D) -> () {
+        self.x /= rhs.x;
+        self.y /= rhs.y;
+        self.z /= rhs.z;
+    }
+}
+
+impl DivAssign<f32> for Vector3D{
+    fn div_assign(&mut self, rhs: f32) -> () {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs;
+    }
+}
+
+// Trait implementations for Vector4D
 
 impl Add for Vector4D {
     type Output = Self;
@@ -211,6 +451,33 @@ impl Add for Vector4D {
     }
 }
 
+impl Add<f32> for Vector4D {
+    type Output = Self;
+
+    fn add(self, other: f32) -> Self {
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+            w: self.w + other,
+        }
+    }
+}
+
+impl Add<i32> for Vector4D {
+    type Output = Self;
+
+    fn add(self, other: i32) -> Self {
+        let other = other as f32;
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+            w: self.w + other,
+        }
+    }
+}
+
 impl Sub for Vector4D {
     type Output = Self;
 
@@ -220,6 +487,33 @@ impl Sub for Vector4D {
             y: self.y - other.y,
             z: self.z - other.z,
             w: self.w - other.w,
+        }
+    }
+}
+
+impl Sub<f32> for Vector4D {
+    type Output = Self;
+
+    fn sub(self, other: f32) -> Self {
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+            w: self.w + other,
+        }
+    }
+}
+
+impl Sub<i32> for Vector4D {
+    type Output = Self;
+
+    fn sub(self, other: i32) -> Self {
+        let other = other as f32;
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+            w: self.w + other,
         }
     }
 }
@@ -247,5 +541,77 @@ impl Div<f32> for Vector4D {
             z: self.z / scalar,
             w: self.w / scalar,
         }
+    }
+}
+
+impl AddAssign for Vector4D{
+    fn add_assign(&mut self, rhs: Vector4D) -> () {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+        self.w += rhs.w;
+    }
+}
+
+impl AddAssign<f32> for Vector4D{
+    fn add_assign(&mut self, rhs: f32) -> () {
+        self.x += rhs;
+        self.y += rhs;
+        self.z += rhs;
+        self.w += rhs;
+    }
+}
+
+impl SubAssign for Vector4D{
+    fn sub_assign(&mut self, rhs: Vector4D) -> () {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z;
+        self.w -= rhs.w;
+    }
+}
+
+impl SubAssign<f32> for Vector4D{
+    fn sub_assign(&mut self, rhs: f32) -> () {
+        self.x -= rhs;
+        self.y -= rhs;
+        self.z -= rhs;
+        self.w -= rhs;
+    }
+}
+
+impl MulAssign for Vector4D{
+    fn mul_assign(&mut self, rhs: Vector4D) -> () {
+        self.x *= rhs.x;
+        self.y *= rhs.y;
+        self.z *= rhs.z;
+        self.w *= rhs.w;
+    }
+}
+
+impl MulAssign<f32> for Vector4D{
+    fn mul_assign(&mut self, rhs: f32) -> () {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+        self.w *= rhs;
+    }
+}
+
+impl DivAssign for Vector4D{
+    fn div_assign(&mut self, rhs: Vector4D) -> () {
+        self.x /= rhs.x;
+        self.y /= rhs.y;
+        self.z /= rhs.z;
+        self.w /= rhs.w;
+    }
+}
+
+impl DivAssign<f32> for Vector4D{
+    fn div_assign(&mut self, rhs: f32) -> () {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs;
+        self.w /= rhs;
     }
 }

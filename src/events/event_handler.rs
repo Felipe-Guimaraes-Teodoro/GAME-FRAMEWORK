@@ -9,6 +9,8 @@ pub struct EventHandler {
 
     pub mouse_pos: Vector2D,
 
+    pub scroll: Vector2D,
+
     pub width: f32,
     pub height: f32,
 
@@ -23,6 +25,8 @@ impl EventHandler {
             mouse_pos: Vector2D::new(1.0, 1.0),
             width: 1.0,
             height: 1.0,
+
+            scroll: Vector2D::ZERO,
 
             rmb: false,
             lmb: false,
@@ -56,6 +60,10 @@ impl EventHandler {
     pub fn on_rmb_release(&mut self) {
         self.rmb = false;
     } 
+
+    pub fn on_scroll_change(&mut self, change: Vector2D){
+        self.scroll = change;
+    }
 
     pub fn on_window_resize(&mut self, w: i32, h: i32) {
         self.width = w as f32;

@@ -3,6 +3,9 @@ extern crate glfw;
 use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
 use glfw::{Action, Context, Key};
 
+use crate::utils::Vector2D;
+use crate::Vector3D;
+
 use super::EventHandler;
 
 pub struct EventLoop {
@@ -24,6 +27,7 @@ impl EventLoop {
         window.set_cursor_pos_polling(true);
         window.set_framebuffer_size_polling(true);
         window.set_mouse_button_polling(true);
+        window.set_scroll_polling(true);
 
         gl::load_with(|s| window.get_proc_address(s) );
     
@@ -38,12 +42,18 @@ impl EventLoop {
         }
     }
 
+    pub fn size(&self) -> Vector2D{
+        Vector2D::new(self.window.get_size().0 as f32, self.window.get_size().1 as f32)
+    }
+
     pub fn update(&mut self) {
         self.window.swap_buffers();
     
         self.glfw.poll_events();
+
+        self.event_handler.scroll = Vector2D::ZERO;
+
         for (_, event) in glfw::flush_messages(&self.events) {
-            // println!("{:?}", &self.event_handler.keys_pressed);
             match event {
                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
                     self.window.set_should_close(true)
@@ -54,9 +64,11 @@ impl EventLoop {
                 glfw::WindowEvent::Key(key, _, Action::Release, _ ) => {
                     self.event_handler.on_key_release(key);
                 }
+
                 glfw::WindowEvent::CursorPos(x, y) => {
                     self.event_handler.on_mouse_move(x, y);
                 }
+
                 glfw::WindowEvent::MouseButton(button, Action::Press, _) => {
                     match button {
                         glfw::MouseButton::Button1 => {
@@ -65,7 +77,6 @@ impl EventLoop {
                         glfw::MouseButton::Button2 => {
                             self.event_handler.on_rmb_press();
                         },
-
                         _ => ()
                     }
                 }
@@ -81,6 +92,11 @@ impl EventLoop {
                         _ => ()
                     }
                 }
+
+                glfw::WindowEvent::Scroll(xoff, yoff) => {
+                    self.event_handler.on_scroll_change(Vector2D::new(xoff as f32, yoff as f32));
+                }
+
                 glfw::WindowEvent::FramebufferSize(w, h) => {
                     self.event_handler.on_window_resize(w, h);
                 }
@@ -90,11 +106,18 @@ impl EventLoop {
     }
 
     pub fn is_key_down(&mut self, key: Key) -> bool {
-        if self.window.get_key(key) ==Action::Press {
+        if self.window.get_key(key) == Action::Press {
             true
         } else { 
             false 
         }
     }
-}
 
+    pub fn is_key_up(&mut self, key: Key) -> bool {
+        if self.window.get_key(key) == Action::Release {
+            true
+        } else {
+            false
+        }
+    }
+}

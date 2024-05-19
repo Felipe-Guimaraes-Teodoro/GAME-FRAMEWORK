@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::Vector2D;
 use crate::Vector3D;
 
 use crate::utils::Vector4D;
@@ -32,10 +33,6 @@ impl Renderer {
         Self {
             meshes: HashMap::new(),
         }
-    }
-
-    pub fn update(&mut self) {
-        
     }
 
     pub unsafe fn draw(&self) {

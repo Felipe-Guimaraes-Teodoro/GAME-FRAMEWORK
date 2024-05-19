@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, gen_attrib_pointers, Vector3D};
+use crate::{bind_buffer, cstr, gen_attrib_pointers, Vector3D, Vector2D};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -84,7 +84,7 @@ impl Renderer {
         self.meshes.insert(name.to_owned(), mesh);
     }
 
-    pub fn add_mesh(&mut self, name: &str, mesh:Mesh) {
+    pub fn add_mesh(&mut self, name: &str, mut mesh: Mesh) {
         // before adding a mesh with certain name, 
         // assure it has not been already added
         if self.meshes.get(name).is_some() { return };
