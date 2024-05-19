@@ -6,6 +6,11 @@ use std::ffi::CString;
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
 use gl::{*, types::GLsizei};
+use once_cell::sync::Lazy;
+
+pub static DEFAULT_SHADER: Lazy<Shader> = Lazy::new(|| {
+    Shader::new_pipeline(DEFAULT_MESH_SHADER_VS, DEFAULT_MESH_SHADER_FS)
+});
 
 #[derive(PartialEq, Debug)]
 pub struct Mesh {
@@ -22,13 +27,12 @@ pub struct Mesh {
 }
 
 impl Mesh {
-    pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
-        let shader = Shader::new_pipeline(DEFAULT_MESH_SHADER_VS, DEFAULT_MESH_SHADER_FS);
+    pub fn new(vertices: &Vec<Vertex>, indices: &Vec<u32>) -> Self {
         let mut mesh = Mesh {
-            vertices, indices,
+            vertices: vertices.to_vec(), indices: indices.to_vec(),
             VAO: 0, VBO: 0, EBO: 0,
-            position: Vector3D::ZERO,
-            shader,
+            position: Vector3D::ZERO,        
+            shader: *DEFAULT_SHADER,
         };
 
         unsafe { mesh.setup_mesh() }
@@ -36,11 +40,14 @@ impl Mesh {
         mesh
     }
 
+    pub fn set_shader(&mut self, shader: &Shader) {
+        self.shader = *shader;
+    }
+
     pub unsafe fn setup_mesh(&mut self) {
         GenVertexArrays(1, &mut self.VAO);
         GenBuffers(1, &mut self.VBO);
         GenBuffers(1, &mut self.EBO);
-
 
         BindVertexArray(self.VAO);
 
@@ -61,46 +68,52 @@ impl Mesh {
         BindVertexArray(0);
         UseProgram(0);
     }
+}
 
-    pub fn destroy(&mut self) {
-        // maybe do: BindVertexArray(self.VAO);
-        // delete
-        // BindVertexArray(0);
-        unsafe {
-            DeleteVertexArrays(1, &self.VAO);
-            DeleteBuffers(1, &self.VBO);
-            DeleteBuffers(1, &self.EBO);
+impl Renderer {
+    pub fn add_mesh_from_vertices_and_indices(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>) -> Result<(), String> {
+        if self.meshes.contains_key(name) {
+            return Err(format!("Mesh with name '{}' already exists", name));
+        }
+
+        let mesh = Mesh::new(&vertices, &indices);
+        self.meshes.insert(name.to_owned(), mesh);
+        Ok(())
+    }
+
+    pub fn add_mesh(&mut self, name: &str, mesh: Mesh) -> Result<(), String> {
+        if self.meshes.contains_key(name) {
+            return Err(format!("Mesh with name '{}' already exists", name));
+        }
+
+        self.meshes.insert(name.to_owned(), mesh);
+        Ok(())
+    }
+
+    pub fn get_mesh_mut(&mut self, name: &str) -> Option<&mut Mesh> {
+        self.meshes.get_mut(name)
+    }
+
+    pub fn get_mesh(&self, name: &str) -> Option<&Mesh> {
+        self.meshes.get(name)
+    }
+
+    pub fn destroy_mesh(&mut self, name: &str) -> Result<(), String> {
+        if self.meshes.remove(name).is_some() {
+            Ok(())
+        } else {
+            Err(format!("No mesh found with name '{}'", name))
         }
     }
 }
 
-impl Renderer {
-    pub fn add_mesh_from_vertices_and_indices(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>) {
-        // before adding a mesh with certain name, 
-        // assure it has not been already added
-        if self.meshes.get(name).is_some() { return };
 
-        let mesh = Mesh::new(vertices, indices);
-        self.meshes.insert(name.to_owned(), mesh);
-    }
-
-    pub fn add_mesh(&mut self, name: &str, mesh:Mesh) {
-        // before adding a mesh with certain name, 
-        // assure it has not been already added
-        if self.meshes.get(name).is_some() { return };
-
-        self.meshes.insert(name.to_owned(), mesh);
-    }
-
-    pub fn get_mesh(&mut self, name: &str) -> Option<&mut Mesh> {
-        self.meshes.get_mut(name)
-    }
-
-    pub fn destroy_mesh(&mut self, name: &str) {
-        if let Some(mesh) = self.meshes.get_mut(name) {
-            mesh.destroy();
+impl Drop for Mesh {
+    fn drop(&mut self) {
+        unsafe {
+            DeleteVertexArrays(1, &self.VAO);
+            DeleteBuffers(1, &self.EBO);
+            DeleteBuffers(1, &self.VBO);
         }
-
-        self.meshes.remove(name);
     }
 }

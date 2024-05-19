@@ -6,7 +6,7 @@ use std::ffi::CStr;
 
 use crate::Vector3D;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct Shader {
     pub id: u32,
 }

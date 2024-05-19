@@ -1,6 +1,8 @@
 use std::ops::Add;
 use rand::prelude::*;
 
+use crate::utils::{Vector2D, Vector3D, Vector4D};
+
 pub fn distance(a: f32, b: f32) -> f32{
     return f32::sqrt(a*a + b*b);
 }
@@ -21,6 +23,18 @@ pub fn rand_betw
 ) -> T {
     let mut r = thread_rng();
     r.gen_range(n1..n2)
+}
+
+pub fn rand_vec2() -> Vector2D {
+    Vector2D::new(rand_betw(0.0, 1.0), rand_betw(0.0, 1.0))
+}
+
+pub fn rand_vec3() -> Vector3D {
+    Vector3D::new(rand_betw(0.0, 1.0), rand_betw(0.0, 1.0), rand_betw(0.0, 1.0))
+}
+
+pub fn rand_vec4() -> Vector4D {
+    Vector4D::new(rand_betw(0.0, 1.0), rand_betw(0.0, 1.0), rand_betw(0.0, 1.0), rand_betw(0.0, 1.0))
 }
 
 struct SecondOrderDynamics {

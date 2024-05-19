@@ -19,7 +19,7 @@ impl Quad{
         }
     }
 
-    pub fn add_to_renderer(self, name: &str, renderer: &mut Renderer){
+    pub fn add_to_renderer(&self, name: &str, renderer: &mut Renderer){
         let vertices = vec![
             Vertex::new(Vector3D::new(self.position.x, self.position.y, 0.0), self.color),
             Vertex::new(Vector3D::new(self.position.x, self.position.y + self.size.y, 0.0), self.color),
@@ -28,7 +28,7 @@ impl Quad{
         ];
 
         let indices = vec![0, 2, 1, 2, 3, 1];
-        renderer.add_mesh(name, Mesh::new(vertices, indices));
+        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
 }
 
@@ -55,7 +55,7 @@ impl Circle {
         }
     }
     
-    pub fn add_to_renderer(self, name: &str, renderer: &mut Renderer) {
+    pub fn add_to_renderer(&self, name: &str, renderer: &mut Renderer) {
         let mut vertices = vec![];
         let pi = std::f32::consts::PI;
         let angle_increment = 2.0 * pi / self.resolution as f32;
@@ -74,7 +74,7 @@ impl Circle {
             indices.push((i % self.resolution + 1) as u32);
         }
 
-        renderer.add_mesh(name, Mesh::new(vertices, indices))        
+        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
 }
 
@@ -93,7 +93,7 @@ impl Triangle{
         }
     }
 
-    pub fn add_to_renderer(self, name: &str, renderer: &mut Renderer) {
+    pub fn add_to_renderer(&self, name: &str, renderer: &mut Renderer) {
         let mut vertices = vec![];
         let pi = std::f32::consts::PI;
         let angle_increment = 2.0 * pi / 3. as f32;
@@ -110,6 +110,6 @@ impl Triangle{
             indices.push(2 as u32);
             // Shamelessly (ok theres a bit of shame) stole my own circle rendering code so I just set it to three vertices
 
-        renderer.add_mesh(name, Mesh::new(vertices, indices))        
+        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap(); 
     }
 }
