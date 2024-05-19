@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, gen_attrib_pointers, Vector3D, Vector2D};
+use crate::{bind_buffer, cstr, gen_attrib_pointers, Vector3D, Vector2D, events::EventLoop};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -44,6 +44,18 @@ impl Mesh {
         self.shader = *shader;
     }
 
+    pub fn set_position(&mut self, position: Vector3D){
+        self.position = position;
+    }
+
+    pub fn add_position(&mut self, position: Vector3D){
+        self.position += position;
+    }
+
+    pub fn scale(&mut self, scale: f32){
+        println!("{}, {}", self.position.x, self.position.y);
+    }
+
     pub unsafe fn setup_mesh(&mut self) {
         GenVertexArrays(1, &mut self.VAO);
         GenBuffers(1, &mut self.VBO);
@@ -60,10 +72,13 @@ impl Mesh {
     
     }
     
-    pub unsafe fn draw(&self) {
+    pub unsafe fn draw(&self, el: &EventLoop) {
+        let (w, h) = el.window.get_framebuffer_size();
+        let resolution = Vector3D::new(w as f32, h as f32, 1.0) / 2.0;
+        
         BindVertexArray(self.VAO);
         self.shader.use_shader();
-        self.shader.uniform_vec3f(cstr!("pos"), &self.position);
+        self.shader.uniform_vec3f(cstr!("pos"), &(self.position / resolution));
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
         BindVertexArray(0);
         UseProgram(0);

@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use crate::Vector2D;
 use crate::Vector3D;
 
+use crate::EventLoop;
+
 use crate::utils::Vector4D;
 
 use crate::utils::rand_betw;
@@ -35,9 +37,9 @@ impl Renderer {
         }
     }
 
-    pub unsafe fn draw(&self) {
+    pub unsafe fn draw(&self, el: &EventLoop) {
         for value in &self.meshes {
-            value.1.draw();
+            value.1.draw(&el);
         }
     }
 }

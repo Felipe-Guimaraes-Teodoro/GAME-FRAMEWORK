@@ -5,29 +5,24 @@ use crate::utils::Vector4D;
 use crate::utils::Vector2D;
 
 pub struct Quad{
-    pub position: Vector3D,
     pub size: Vector3D,
     pub color: Vector4D,
 }
 
 impl Quad{
-    pub fn new(position: Vector3D, size: Vector3D, resolution: Vector2D, color: Vector4D) -> Self{
-        let fixed_position = position/Vector3D::new(resolution.x, resolution.y, 1.);
-        let fixed_size = size/Vector3D::new(resolution.x, resolution.y, 1.);
-        
+    pub fn new(size: Vector3D, color: Vector4D) -> Self{
         Self{
-            position: fixed_position,
-            size: fixed_size,
+            size,
             color,
         }
     }
 
     pub fn add_to_renderer(&self, name: &str, renderer: &mut Renderer){
         let vertices = vec![
-            Vertex::new(Vector3D::new(self.position.x, self.position.y, 0.0), self.color),
-            Vertex::new(Vector3D::new(self.position.x, self.position.y + self.size.y, 0.0), self.color),
-            Vertex::new(Vector3D::new(self.position.x + self.size.x, self.position.y, 0.0), self.color),
-            Vertex::new(Vector3D::new(self.position.x + self.size.x, self.position.y + self.size.y, 0.0), self.color),
+            Vertex::new(Vector3D::new(0., 0., 0.0), self.color),
+            Vertex::new(Vector3D::new(0., self.size.y, 0.0), self.color),
+            Vertex::new(Vector3D::new(self.size.x, 0., 0.0), self.color),
+            Vertex::new(Vector3D::new(self.size.x, self.size.y, 0.0), self.color),
         ];
 
         let indices = vec![0, 2, 1, 2, 3, 1];
@@ -37,26 +32,20 @@ impl Quad{
 
 pub struct Circle{
     pub iterations: i32,
-    pub position: Vector3D,
     pub radius: f32,
     pub color: Vector4D,
 }
 
 impl Circle {
-    pub fn new(iterations: i32, position: Vector3D, radius: f32, resolution: Vector2D, color: Vector4D) -> Self{
+    pub fn new(iterations: i32, radius: f32, color: Vector4D) -> Self{
         let mut fixed_iterations = iterations;
-
         if iterations <= 3{
             fixed_iterations = 4;
         }
 
-        let fixed_position = position/Vector3D::new(resolution.x, resolution.y, 1.);
-        let fixed_radius = radius/resolution.x.max(resolution.y);
-        
         Self {
             iterations: fixed_iterations,
-            position: fixed_position,
-            radius: fixed_radius,
+            radius,
             color,
         }
     }
@@ -66,8 +55,8 @@ impl Circle {
         let pi = std::f32::consts::PI;
         
         for i in 0..self.iterations {
-            vertices.push(Vertex::new(Vector3D::new(self.position.x + f32::sin(2.*pi*i as f32/self.iterations as f32),
-                                                    self.position.y + f32::cos(2.*pi*i as f32/self.iterations as f32),
+            vertices.push(Vertex::new(Vector3D::new(f32::sin(2.*pi*i as f32/self.iterations as f32),
+                                                    f32::cos(2.*pi*i as f32/self.iterations as f32),
                                                     1./self.radius)*self.radius,
                                                     self.color));
         }
@@ -83,19 +72,14 @@ impl Circle {
 }
 
 pub struct Triangle{
-    pub position: Vector3D,
     pub size: f32,
     pub color: Vector4D,
 }
 
 impl Triangle{
-    pub fn new(position: Vector3D, size: f32, resolution: Vector2D, color: Vector4D) -> Self{
-        let fixed_position = position/Vector3D::new(resolution.x, resolution.y, 1.);
-        let fixed_size = size/resolution.x.max(resolution.y);
-
+    pub fn new(size: f32, color: Vector4D) -> Self{
         Self {
-            position: fixed_position,
-            size: fixed_size,
+            size,
             color,
         }
     }
@@ -104,8 +88,8 @@ impl Triangle{
         let mut vertices = vec![];
         let pi = std::f32::consts::PI;
         for i in 0..3 {
-            vertices.push(Vertex::new(Vector3D::new(self.position.x + f32::sin(2.*pi*i as f32/3. as f32),
-                                                    self.position.y + f32::cos(2.*pi*i as f32/3. as f32),
+            vertices.push(Vertex::new(Vector3D::new(f32::sin(2.*pi*i as f32/3. as f32),
+                                                    f32::cos(2.*pi*i as f32/3. as f32),
                                                     1./self.size)*self.size,
                                                     self.color));
         }
@@ -127,15 +111,11 @@ pub struct Line{
 }
 
 impl Line{
-    pub fn new(begin: Vector3D, end: Vector3D, width: f32, resolution: Vector2D, color: Vector4D) -> Self{
-        let fixed_begin = begin/Vector3D::new(resolution.x, resolution.y, 1.);
-        let fixed_end = end/Vector3D::new(resolution.x, resolution.y, 1.);
-        let fixed_width = width/resolution.x.max(resolution.y);
-
+    pub fn new(begin: Vector3D, end: Vector3D, width: f32, color: Vector4D) -> Self{
         Self{
-            begin: fixed_begin,
-            end: fixed_end,
-            width: fixed_width,
+            begin,
+            end,
+            width,
             color,
         }
     }
