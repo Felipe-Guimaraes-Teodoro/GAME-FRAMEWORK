@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, InstanceData, InstanceMesh, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -43,6 +43,18 @@ impl Mesh {
         unsafe { mesh.setup_mesh() }
 
         mesh
+    }
+
+    pub fn to_instance(&mut self, data: Vec<InstanceData>, n: usize) -> InstanceMesh {
+        let mut new_mesh = InstanceMesh::new(&self.vertices, &self.indices, n);
+
+        new_mesh.instance_data = data;
+
+        unsafe { new_mesh.setup_mesh() };
+
+        drop(self);
+
+        new_mesh
     }
 
     pub fn set_shader(&mut self, shader: &Shader) {

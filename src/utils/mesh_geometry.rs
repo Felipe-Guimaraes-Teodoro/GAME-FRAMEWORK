@@ -68,6 +68,26 @@ impl Circle {
 
         renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
+
+    pub fn mesh(&self) -> Mesh {
+        let mut vertices = vec![];
+        let pi = std::f32::consts::PI;
+        
+        for i in 0..self.iterations {
+            vertices.push(Vertex::new(vec3(f32::sin(2.*pi*i as f32/self.iterations as f32),
+                                                    f32::cos(2.*pi*i as f32/self.iterations as f32),
+                                                    1./self.radius)*self.radius,
+                                                    self.color));
+        }
+        let mut indices = vec![];
+        for i in 1..=self.iterations-2 {
+            indices.push(0); 
+            indices.push(i as u32); 
+            indices.push((i % self.iterations + 1) as u32);
+        }
+
+        Mesh::new(&vertices, &indices)
+    }
 }
 
 pub struct Triangle{
