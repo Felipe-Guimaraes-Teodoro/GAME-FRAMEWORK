@@ -4,11 +4,14 @@ use glam::{vec2, Vec2};
 use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
 use glfw::{Action, Context, Key};
 
+use crate::Imgui;
+
 use super::EventHandler;
 
 pub struct EventLoop {
     pub event_handler: EventHandler,
     pub window: PWindow,
+    pub ui: Imgui,
     glfw: Glfw,
     events: GlfwReceiver<(f64, WindowEvent)>,
 }
@@ -16,10 +19,12 @@ pub struct EventLoop {
 impl EventLoop {
     pub fn new(w: u32, h: u32) -> Self {
         let mut glfw = glfw::init(fail_on_errors!()).unwrap();
-    
+        
         let (mut window, events) = glfw.create_window(w, h, "Hello this is window", glfw::WindowMode::Windowed)
-            .expect("Failed to create GLFW window.");
+        .expect("Failed to create GLFW window.");
     
+        let ui = Imgui::new(&mut window);
+
         window.make_current();
         window.set_key_polling(true);
         window.set_cursor_pos_polling(true);
@@ -35,6 +40,7 @@ impl EventLoop {
         Self {
             event_handler,
             window,
+            ui,
             glfw,
             events,
         }
@@ -65,6 +71,7 @@ impl EventLoop {
 
                 glfw::WindowEvent::CursorPos(x, y) => {
                     self.event_handler.on_mouse_move(x, y);
+                    self.ui.on_mouse_move(x as f32, y as f32);
                 }
 
                 glfw::WindowEvent::MouseButton(button, Action::Press, _) => {
@@ -77,7 +84,9 @@ impl EventLoop {
                         },
                         _ => ()
                     }
+                    self.ui.on_mouse_click(button, Action::Press);
                 }
+
                 glfw::WindowEvent::MouseButton(button, Action::Release, _) => {
                     match button {
                         glfw::MouseButton::Button1 => {
@@ -86,13 +95,15 @@ impl EventLoop {
                         glfw::MouseButton::Button2 => {
                             self.event_handler.on_rmb_release();
                         },
-
+                        
                         _ => ()
                     }
+                    self.ui.on_mouse_click(button, Action::Release);
                 }
 
                 glfw::WindowEvent::Scroll(xoff, yoff) => {
                     self.event_handler.on_scroll_change(vec2(xoff as f32, yoff as f32));
+                    self.ui.on_mouse_scroll(xoff as f32, yoff as f32);
                 }
 
                 glfw::WindowEvent::FramebufferSize(w, h) => {
