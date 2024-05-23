@@ -20,3 +20,43 @@ macro_rules! bind_buffer {
         BufferData($buffer_type, size, data_ptr, STATIC_DRAW);
     }};
 }
+
+#[macro_export]
+macro_rules! im_debug {
+    ($name:expr, $data:expr, $frame:expr) => {{
+        let name = $name;
+        let increase_indent = ['(', '{', '[', ':', ','];
+        let decrease_indent = [')', '}', ']'];
+
+        let mut result = String::new();
+        let mut indent_level = 0;
+        
+        let data_str = format!("{:?}", $data);
+
+        for part in data_str.split(|c| increase_indent.contains(&c) || decrease_indent.contains(&c)) {
+            let trimmed_part = part.trim();
+            if trimmed_part.is_empty() {
+                continue;
+            }
+
+            if let Some(first_char) = trimmed_part.chars().next() {
+                if decrease_indent.contains(&first_char) && indent_level > 0 {
+                    indent_level -= 1;
+                }
+            }
+
+            let indentation = "    ".repeat(indent_level);
+            result.push_str(&indentation);
+            result.push_str(trimmed_part);
+            result.push_str("\n");
+            
+            if let Some(last_char) = trimmed_part.chars().last() {
+                if increase_indent.contains(&last_char) {
+                    indent_level += 1;
+                }
+            }
+        }
+
+        $frame.text(format!("{}:\n{}", name, result));
+    }};
+}

@@ -3,6 +3,7 @@ extern crate glfw;
 use glam::{vec2, Vec2};
 use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
 use glfw::{Action, Context, Key};
+use imgui::Ui;
 
 use crate::Imgui;
 
@@ -42,7 +43,7 @@ impl EventLoop {
             window,
             ui,
             glfw,
-            events,
+            events,      
         }
     }
 
@@ -75,19 +76,30 @@ impl EventLoop {
                 }
 
                 glfw::WindowEvent::MouseButton(button, Action::Press, _) => {
+                    self.ui.on_mouse_click(button, Action::Press);
+
+                    // todo: figure out if the user
+                    // is clicking on imgui or the 
+                    // actual game
                     match button {
                         glfw::MouseButton::Button1 => {
+                            // if self.ui.ctx.io().mouse_down[0] {
+                            //     break;
+                            // }
                             self.event_handler.on_lmb_press();
                         },
                         glfw::MouseButton::Button2 => {
+                            // if self.ui.ctx.io().mouse_down[1] {
+                            //     break;
+                            // }
                             self.event_handler.on_rmb_press();
                         },
                         _ => ()
                     }
-                    self.ui.on_mouse_click(button, Action::Press);
                 }
 
                 glfw::WindowEvent::MouseButton(button, Action::Release, _) => {
+                    self.ui.on_mouse_click(button, Action::Release);
                     match button {
                         glfw::MouseButton::Button1 => {
                             self.event_handler.on_lmb_release();
@@ -98,7 +110,6 @@ impl EventLoop {
                         
                         _ => ()
                     }
-                    self.ui.on_mouse_click(button, Action::Release);
                 }
 
                 glfw::WindowEvent::Scroll(xoff, yoff) => {

@@ -43,8 +43,8 @@ impl EventHandler {
     }
 
     pub fn on_mouse_move(&mut self, x: f64, y: f64) {
-        self.mouse_pos.x = x as f32;
-        self.mouse_pos.y = y as f32;
+        self.mouse_pos.x =  x as f32 - self.width / 2.0;
+        self.mouse_pos.y = -y as f32 + self.height / 2.0;
     }
 
     pub fn on_lmb_press(&mut self) {

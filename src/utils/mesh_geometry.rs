@@ -27,6 +27,19 @@ impl Quad{
         let indices = vec![0, 2, 1, 2, 3, 1];
         renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
+
+    pub fn mesh(&self) -> Mesh {
+        let vertices = vec![
+            Vertex::new(vec3(0., 0., 0.0), self.color),
+            Vertex::new(vec3(0., self.size.y, 0.0), self.color),
+            Vertex::new(vec3(self.size.x, 0., 0.0), self.color),
+            Vertex::new(vec3(self.size.x, self.size.y, 0.0), self.color),
+        ];
+
+        let indices = vec![0, 2, 1, 2, 3, 1];
+        
+        Mesh::new(&vertices, &indices)
+    }
 }
 
 pub struct Circle{
@@ -119,6 +132,24 @@ impl Triangle{
             // Shamelessly (ok theres a bit of shame) stole my own circle rendering code so I just set it to three vertices
 
         renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap(); 
+    }
+
+    pub fn mesh(&self) -> Mesh {
+        let mut vertices = vec![];
+        let pi = std::f32::consts::PI;
+        for i in 0..3 {
+            vertices.push(Vertex::new(vec3(f32::sin(2.*pi*i as f32/3. as f32),
+                                                    f32::cos(2.*pi*i as f32/3. as f32),
+                                                    1./self.size)*self.size,
+                                                    self.color));
+        }
+        let mut indices = vec![];
+            indices.push(0); 
+            indices.push(1 as u32); 
+            indices.push(2 as u32);
+            // Shamelessly (ok theres a bit of shame) stole my own circle rendering code so I just set it to three vertices
+
+        Mesh::new(&vertices, &indices)
     }
 }
 

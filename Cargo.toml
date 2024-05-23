@@ -1,6 +1,6 @@
 [package]
 name = "tiny-game-framework"
-version = "0.0.133"
+version = "0.0.134"
 authors = ["Felipe <felipeguimaraesteodoro@gmail.com>", "Caio <ferrandis.ca@gmail.com>", "Bob <bob@example.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"

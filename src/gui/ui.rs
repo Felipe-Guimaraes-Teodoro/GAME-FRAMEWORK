@@ -11,7 +11,7 @@ pub struct Imgui {
      */
 
     renderer: ImguiRenderer,
-    ctx: Context,
+    pub ctx: Context,
 }
 
 impl Imgui {

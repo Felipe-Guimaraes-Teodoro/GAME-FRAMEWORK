@@ -14,7 +14,7 @@ pub static INSTANCE_SHADER: Lazy<Shader> = Lazy::new(|| {
 });
 
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct InstanceData {
     // pub position: Vec3,
     // pub rotation: Quat,
