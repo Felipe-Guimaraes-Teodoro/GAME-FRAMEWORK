@@ -1,9 +1,10 @@
 extern crate glfw;   
 
-use std::time;
+use std::time::{self, Instant};
 
+use gl::Viewport;
 use glam::{vec2, Vec2};
-use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
+use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, Window, WindowEvent};
 use glfw::{Action, Context, Key};
 use imgui::Ui;
 
@@ -17,8 +18,11 @@ pub struct EventLoop {
     pub ui: Imgui,
     glfw: Glfw,
     events: GlfwReceiver<(f64, WindowEvent)>,
-    pub time: f32,
+    pub now: Instant,
     pub dt: f32,
+    pub time: f32,
+
+    pub timescale: f32,
 }
 
 impl EventLoop {
@@ -36,6 +40,8 @@ impl EventLoop {
         window.set_framebuffer_size_polling(true);
         window.set_mouse_button_polling(true);
         window.set_scroll_polling(true);
+        // window.set_size_callback(|window: &mut Window, width: i32, height: i32| resize_callback(&*window, width, height));
+
 
         gl::load_with(|s| window.get_proc_address(s) );
     
@@ -48,8 +54,10 @@ impl EventLoop {
             ui,
             glfw,
             events,
-            time: 0.,
-            dt: 0.,
+            now: std::time::Instant::now(),
+            dt: 0.0,
+            time: 0.0,
+            timescale: 1.0,
         }
     }
 
@@ -58,9 +66,10 @@ impl EventLoop {
     }
 
     pub fn update(&mut self) {
-        let old_time = self.time;
-        self.time += time::Instant::now().elapsed().as_secs_f32() * 10000.;
-        self.dt = self.time - old_time;
+        self.dt = self.now.elapsed().as_secs_f32() * self.timescale;
+        self.time += self.dt;
+        self.now = std::time::Instant::now();
+
 
         self.window.swap_buffers();
     
@@ -129,6 +138,9 @@ impl EventLoop {
 
                 glfw::WindowEvent::FramebufferSize(w, h) => {
                     self.event_handler.on_window_resize(w, h);
+                    unsafe {
+                        Viewport(0, 0, w, h);
+                    }
                 }
                 _ => {},
             }

@@ -68,5 +68,6 @@ impl EventHandler {
     pub fn on_window_resize(&mut self, w: i32, h: i32) {
         self.width = w as f32;
         self.height = h as f32;
+
     }
 }

@@ -178,17 +178,17 @@ impl Cuboid{
 
     pub fn mesh(&self) -> Mesh {
         let vertices = vec![
-        // Front face
-        Vertex::new(vec3(0.0, 0.0, 0.0), self.color), // 0
-        Vertex::new(vec3(1.0, 0.0, 0.0), self.color), // 1
-        Vertex::new(vec3(1.0, 1.0, 0.0), self.color), // 2
-        Vertex::new(vec3(0.0, 1.0, 0.0), self.color), // 3
-        // Back face
-        Vertex::new(vec3(0.0, 0.0, -1.0), self.color), // 4
-        Vertex::new(vec3(1.0, 0.0, -1.0), self.color), // 5
-        Vertex::new(vec3(1.0, 1.0, -1.0), self.color), // 6
-        Vertex::new(vec3(0.0, 1.0, -1.0), self.color), // 7
-        ];
+            // Front face
+            Vertex::new(vec3(0.0, 0.0, 0.0), self.color), // 0
+            Vertex::new(vec3(self.size.x, 0.0, 0.0), self.color), // 1
+            Vertex::new(vec3(self.size.x, self.size.y, 0.0), self.color), // 2
+            Vertex::new(vec3(0.0, self.size.y, 0.0), self.color), // 3
+            // Back face
+            Vertex::new(vec3(0.0, 0.0, -self.size.z), self.color), // 4
+            Vertex::new(vec3(self.size.x, 0.0, -self.size.z), self.color), // 5
+            Vertex::new(vec3(self.size.x, self.size.y, -self.size.z), self.color), // 6
+            Vertex::new(vec3(0.0, self.size.y, -self.size.z), self.color), // 7
+            ];
 
         let indices = vec![
             // Front face
@@ -205,6 +205,68 @@ impl Cuboid{
             0, 1, 5, 0, 5, 4,
         ];
         
+        Mesh::new(&vertices, &indices)
+    }
+}
+
+pub struct Sphere{
+    pub iterations: i32,
+    pub radius: f32,
+    pub color: Vec4,
+}
+
+impl Sphere {
+    pub fn new(iterations: i32, radius: f32, color: Vec4) -> Self{
+        let mut fixed_iterations = iterations;
+        if iterations <= 3{
+            fixed_iterations = 4;
+        }
+
+        Self {
+            iterations: fixed_iterations,
+            radius,
+            color,
+        }
+    }
+
+    pub fn mesh(&self) -> Mesh {
+        let mut vertices = vec![];
+        let pi = std::f32::consts::PI;
+
+        for lat in 0..=self.iterations {
+            let theta = pi * lat as f32 / self.iterations as f32;
+            let sin_theta = theta.sin();
+            let cos_theta = theta.cos();
+
+            for lon in 0..=self.iterations {
+                let phi = 2.0 * pi * lon as f32 / self.iterations as f32;
+                let sin_phi = phi.sin();
+                let cos_phi = phi.cos();
+
+                let x = cos_phi * sin_theta;
+                let y = cos_theta;
+                let z = sin_phi * sin_theta;
+
+                vertices.push(Vertex::new(vec3(x, y, z) * self.radius, self.color));
+            }
+        }
+
+        let mut indices = vec![];
+        for lat in 0..self.iterations {
+            for lon in 0..self.iterations {
+                let first = lat * (self.iterations + 1) + lon;
+                let second = first + self.iterations + 1;
+
+                indices.push(first as u32);
+                indices.push(second as u32);
+                indices.push((first + 1) as u32);
+
+                indices.push(second as u32);
+                indices.push((second + 1) as u32);
+                indices.push((first + 1) as u32);
+            }
+        }
+
         Mesh::new(&vertices, &indices)
     }
 }

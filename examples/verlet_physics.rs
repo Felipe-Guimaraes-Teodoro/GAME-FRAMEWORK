@@ -125,7 +125,7 @@ impl Particle {
         let n = Vec3::ZERO;
 
         let circle = Circle::new(7, radius / 250.0, vec4(rand_betw(0.0, 1.0), rand_betw(0.0, 1.0), rand_betw(0.0, 1.0), 1.0));
-        circle.add_to_renderer(name, renderer);
+        renderer.add_mesh(name, circle.mesh()).unwrap();
         renderer.get_mesh_mut(name).unwrap().rotation = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, rand_betw(0.0, 2.0*std::f32::consts::PI));
 
         Self {
