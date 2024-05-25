@@ -171,14 +171,44 @@ impl Line{
     }
 
     pub fn add_to_renderer(&self, name: &str, renderer: &mut Renderer){
-        let vertices = vec![
-            Vertex::new(vec3(self.begin.x+self.width, self.begin.y+self.width, 0.0), self.color),
-            Vertex::new(vec3(self.end.x+self.width, self.end.y+self.width, 0.0), self.color),
-            Vertex::new(vec3(self.begin.x-self.width, self.begin.y-self.width, 0.0), self.color),
-            Vertex::new(vec3(self.end.x-self.width, self.end.y-self.width, 0.0), self.color),
-        ];
+        // let vertices = vec![
+        //     Vertex::new(vec3(self.begin.x+self.width, self.begin.y+self.width, 0.0), self.color),
+        //     Vertex::new(vec3(self.end.x+self.width, self.end.y+self.width, 0.0), self.color),
+        //     Vertex::new(vec3(self.begin.x-self.width, self.begin.y-self.width, 0.0), self.color),
+        //     Vertex::new(vec3(self.end.x-self.width, self.end.y-self.width, 0.0), self.color),
+        // ];
 
-        let indices = vec![0, 2, 1, 2, 3, 1];
-        renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
+        // let indices = vec![0, 2, 1, 2, 3, 1];
+        // renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
+
+            let mut vertices: Vec<Vertex> = Vec::new();
+            let mut indices: Vec<u32> = Vec::new();
+
+            let WIDTH = 400.;
+
+            let x1 = self.begin[0];
+            let x2 = self.end[0];
+            let y1 = self.begin[1];
+            let y2 = self.end[1];
+
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let l = dx.hypot (dy)/WIDTH;
+            let u = dx * WIDTH * 0.5 / l / WIDTH;
+            let v = dy * WIDTH * 0.5 / l / WIDTH;
+
+            vertices.push(Vertex { position: vec3(x1 + v,  y1 - u, 0.0), color: self.color });
+            vertices.push(Vertex { position: vec3(x1 - v,  y1 + u, 0.0), color: self.color });
+            vertices.push(Vertex { position: vec3(x2 - v,  y2 + u, 0.0), color: self.color });
+            vertices.push(Vertex { position: vec3(x2 + v,  y2 - u, 0.0), color: self.color });
+
+            indices.push(2);
+            indices.push(1);
+            indices.push(0);
+            indices.push(2);
+            indices.push(0);
+            indices.push(3);
+
+            renderer.add_mesh(name, Mesh::new(&vertices, &indices)).unwrap();
     }
 }

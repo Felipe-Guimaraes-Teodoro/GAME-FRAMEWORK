@@ -69,8 +69,8 @@ impl Mesh {
         self.position += position;
     }
 
-    pub fn scale(&mut self, scale: f32){
-        println!("{}, {}", self.position.x, self.position.y);
+    pub fn scale(&mut self, scale: Vec3){
+        self.scale *= scale;
     }
 
     pub unsafe fn setup_mesh(&mut self) {
