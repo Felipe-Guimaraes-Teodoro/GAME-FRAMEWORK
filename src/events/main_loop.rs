@@ -1,5 +1,7 @@
 extern crate glfw;   
 
+use std::time;
+
 use glam::{vec2, Vec2};
 use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
 use glfw::{Action, Context, Key};
@@ -15,6 +17,8 @@ pub struct EventLoop {
     pub ui: Imgui,
     glfw: Glfw,
     events: GlfwReceiver<(f64, WindowEvent)>,
+    pub time: f32,
+    pub dt: f32,
 }
 
 impl EventLoop {
@@ -43,7 +47,9 @@ impl EventLoop {
             window,
             ui,
             glfw,
-            events,      
+            events,
+            time: 0.,
+            dt: 0.,
         }
     }
 
@@ -52,6 +58,10 @@ impl EventLoop {
     }
 
     pub fn update(&mut self) {
+        let old_time = self.time;
+        self.time += time::Instant::now().elapsed().as_secs_f32() * 10000.;
+        self.dt = self.time - old_time;
+
         self.window.swap_buffers();
     
         self.glfw.poll_events();
