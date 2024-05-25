@@ -37,10 +37,11 @@ fn main() {
     renderer.add_instance_mesh("mesh", instance_mesh).unwrap();
 
     Circle::new(16, 0.012, vec4(1.0, 0.0, 0.0, 0.0)).add_to_renderer("c", &mut renderer);
+    Line::new(vec3(0.5, 0.5, 0.), vec3(0.9, 0.5, 0.), 0.01, Vec4::ONE).add_to_renderer("l", &mut renderer);
 
     let mut dt = 0.;
+    let mut wish_pos = Vec3::ZERO;
     let mut time = 0.;
-    let mut wish_pos = vec3(0.0, 0.0, 0.0);
 
     while !el.window.should_close() {
         let now = std::time::Instant::now();
@@ -95,7 +96,6 @@ fn main() {
         unsafe {
             Clear(COLOR_BUFFER_BIT);
             renderer.draw(&el);
-            el.ui.draw();
         }
         
         time += dt;
