@@ -3,7 +3,7 @@ use gl::types::*;
 use glam::{Mat4, Vec3};
 
 use std::ptr;
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct Shader {
@@ -29,7 +29,7 @@ impl Shader {
             Self { id }
         }
     }
-
+    
     pub fn new_pipeline(vs_code: &str, fs_code: &str) -> Self {
         unsafe {
             let vs = CreateShader(VERTEX_SHADER);
@@ -66,12 +66,12 @@ impl Shader {
         Uniform1f(GetUniformLocation(self.id, name.as_ptr()), val);
     }
 
-    pub unsafe fn uniform_mat4fv(&self, name: &CStr, mat: &Mat4) {
+    pub unsafe fn uniform_mat4fv(&self, name: &CStr, mat: &[f32; 16]) {
         UniformMatrix4fv(
             GetUniformLocation(self.id, name.as_ptr()), 
             1, 
             FALSE, 
-            mat.as_ref() as *const f32
+            mat as *const f32
         );
     }
 

@@ -5,7 +5,7 @@ use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, WindowEvent};
 use glfw::{Action, Context, Key};
 use imgui::Ui;
 
-use crate::Imgui;
+use crate::{Camera, Imgui};
 
 use super::EventHandler;
 
@@ -140,4 +140,5 @@ impl EventLoop {
             false
         }
     }
+
 }

@@ -1,12 +1,12 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, Camera, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
 use gl::{*, types::GLsizei};
-use glam::{vec3, Mat4, Quat, Vec2, Vec3};
+use glam::{vec3, Mat4, Quat, Vec2, Vec3, Vec4};
 use once_cell::sync::Lazy;
 
 pub static INSTANCE_SHADER: Lazy<Shader> = Lazy::new(|| {
@@ -16,15 +16,62 @@ pub static INSTANCE_SHADER: Lazy<Shader> = Lazy::new(|| {
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct InstanceData {
-    // pub position: Vec3,
-    // pub rotation: Quat,
-    // pub scale: Vec3,
-
-    // model: Vec<[[f32; 4]; 4]>,
-    pub model: Vec2,
+    // opengl doesnt allow to send the entirety of the
+    // matrix at once, so we decompose it
+    x_axis: Vec4,
+    y_axis: Vec4,
+    z_axis: Vec4,
+    w_axis: Vec4,
 }
 
 impl InstanceData {
+    pub fn from_position(pos: Vec3) -> Self {
+        let model = Mat4::from_translation(pos);
+
+        Self {
+            x_axis: model.x_axis,
+            y_axis: model.y_axis,
+            z_axis: model.z_axis,
+            w_axis: model.w_axis,
+        }
+    }
+
+    pub fn from_rotation(rot: Quat) -> Self {
+        let model = Mat4::from_quat(rot);
+
+        Self {
+            x_axis: model.x_axis,
+            y_axis: model.y_axis,
+            z_axis: model.z_axis,
+            w_axis: model.w_axis,
+        }
+
+    }
+
+    pub fn from_scale(sca: Vec3) -> Self {
+        let model = Mat4::from_scale(sca);
+
+        Self {
+            x_axis: model.x_axis,
+            y_axis: model.y_axis,
+            z_axis: model.z_axis,
+            w_axis: model.w_axis,
+        }
+    }
+
+    pub fn new(pos: Vec3, rot: Quat, sca: Vec3) -> Self {
+        let model = 
+            Mat4::from_translation(pos) *
+            Mat4::from_quat(rot) *
+            Mat4::from_scale(sca);
+
+        Self {
+            x_axis: model.x_axis,
+            y_axis: model.y_axis,
+            z_axis: model.z_axis,
+            w_axis: model.w_axis,
+        }
+    }
 
 }
 
@@ -52,18 +99,14 @@ impl InstanceMesh {
             vertices: vertices.to_vec(), indices: indices.to_vec(),
             VAO: 0, VBO: 0, EBO: 0, 
             instance_buffer: 0,
-            shader: *INSTANCE_SHADER,
             n,
             instance_data: vec![],
+            shader: *INSTANCE_SHADER
         };
 
         // unsafe { mesh.setup_mesh() }
 
         mesh
-    }
-
-    pub fn set_shader(&mut self, shader: &Shader) {
-        self.shader = *shader;
     }
 
     pub unsafe fn setup_mesh(&mut self) {
@@ -80,8 +123,14 @@ impl InstanceMesh {
         GenBuffers(1, &mut self.instance_buffer);
         bind_buffer!(ARRAY_BUFFER, self.instance_buffer, self.instance_data);
         
-        gen_attrib_pointers!(InstanceData, 2 => model: 2);
-        VertexAttribDivisor(2, 1);  
+        gen_attrib_pointers!(InstanceData, 2 => x_axis: 4);
+        gen_attrib_pointers!(InstanceData, 3 => y_axis: 4);
+        gen_attrib_pointers!(InstanceData, 4 => z_axis: 4);
+        gen_attrib_pointers!(InstanceData, 5 => w_axis: 4);
+        VertexAttribDivisor(2, 1); 
+        VertexAttribDivisor(3, 1);  
+        VertexAttribDivisor(4, 1);  
+        VertexAttribDivisor(5, 1);  
         
         BindVertexArray(0);
     }

@@ -1,10 +1,11 @@
 use glfw::{self, Action, Key};
-/* 
-use crate::{cstr, shader::Shader, Vector3D};
+use crate::{cstr, graphics::shader::Shader};
+use crate::glam::{vec3, Vec3, Mat4};
+use std::ffi::CString;
 
-const UP: Vector3D = Vector3D {x: 0.0, y: 1.0, z: 0.0};
+const UP: Vec3 = Vec3::Y;
 const SPEED: f32 = 5.0;
-const SENSITIVITY: f32 = 0.001; // todo: make this editable
+const SENSITIVITY: f32 = 0.1; // todo: make this editable
 
 pub enum ProjectionType {
     Perspective,
@@ -13,16 +14,15 @@ pub enum ProjectionType {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
-    pub proj: Matrix4<f32>,
-    pub view: Matrix4<f32>,
+    pub proj: Mat4,
+    pub view: Mat4,
 
-    pub pos_x: Vector3D,
-    pub pos_y: Vector3D,
-    target: Vector3D,
-    direction: Vector3D,
-    pub right: Vector3D,
-    pub front: Vector3D,
-    pub up: Vector3D,
+    pub pos: Vec3,
+    target: Vec3,
+    direction: Vec3,
+    pub right: Vec3,
+    pub front: Vec3,
+    pub up: Vec3,
 
     pub pitch: f32,
     pub yaw: f32,
@@ -37,36 +37,31 @@ pub struct Camera {
 
 impl Camera {
     pub fn new() -> Self {
-        let (pitch, yaw): (f32, f32) = (0.0, 0.0);
-        let pos = Vector3D::new(0.0, 0.0, 0.0);
-        let target = Vector3D::new(0.0, 0.0, -1.0);
-        let mut direction = Vector3D::normalize(pos - target);
-        direction.x = Rad::cos(Rad(yaw)) * Rad::cos(Rad(pitch));
-        direction.y = Rad::sin(Rad(pitch));
-        direction.z = Rad::sin(Rad(yaw)) * Rad::cos(Rad(pitch));
+        let (pitch, yaw): (f32, f32) = (0.0, -90.0);
+        let pos = vec3(0.0, 0.0, 3.0);
+        let target = vec3(0.0, 0.0, -1.0);
+        let mut direction = (pos - target).normalize();
+        direction.x = yaw.to_radians().cos() * pitch.to_radians().cos();
+        direction.y = pitch.to_radians().sin();
+        direction.z = yaw.to_radians().sin() * pitch.to_radians().cos();
         
-        let right = Vector3D::normalize(Vector3D::cross(UP, direction));
-        let up = Vector3D::cross(direction, right);
-        let front = Vector3D::normalize(direction);
+        let right = UP.cross(direction).normalize();
+        let up = direction.cross(right);
+        let front = direction.normalize();
 
-        let view = Matrix4::look_at_rh(
-            Point3::from_vec(pos),
-            Point3::from_vec(pos + front),
-            up,
-        );
+        let view = Mat4::look_at_rh(pos, pos + front, up);
 
         Self {
-            proj: perspective(Deg(70.0), 1.0, 0.1, 100000.0),
-            view, 
+            proj: Mat4::perspective_rh_gl(70.0f32.to_radians(), 1.0, 0.1, 100000.0),
+            view,
 
-            pos_x: pos,
-            pos_y: pos,
+            pos,
             target,
             direction,
             right,
             front,
             up,
-            
+
             pitch,
             yaw,
 
@@ -79,19 +74,19 @@ impl Camera {
         }
     }
 
-    pub fn update(&mut self, y: Vector3D) {
-        self.pos_y = y;
+    pub fn update(&mut self, y: Vec3) {
+        self.pos = y;
         
-        self.view = Matrix4::look_at_rh(
-            Point3::from_vec(self.pos_y),
-            Point3::from_vec(self.pos_y + self.front),
+        self.view = Mat4::look_at_rh(
+            self.pos,
+            self.pos + self.front,
             self.up,
         );
     }
 
     pub fn input(
         &mut self,
-        window: &mut glfw::Window, 
+        window: &glfw::Window, 
         glfw: &glfw::Glfw
     ) {
         let mut speed = SPEED;
@@ -108,27 +103,27 @@ impl Camera {
         }
 
         if window.get_key(Key::W) == Action::Press {
-            self.pos_x += speed * self.dt * self.front; 
+            self.pos += speed * self.dt * self.front; 
         }
         if window.get_key(Key::S) == Action::Press {
-            self.pos_x -= speed * self.dt * self.front; 
+            self.pos -= speed * self.dt * self.front; 
         }
         if window.get_key(Key::Space) == Action::Press {
-            self.pos_x += speed * self.dt * self.up;
+            self.pos += speed * self.dt * self.up;
         }
         if window.get_key(Key::LeftControl) == Action::Press {
-            self.pos_x -= speed * self.dt * self.up;
+            self.pos -= speed * self.dt * self.up;
         }
         if window.get_key(Key::A) == Action::Press {
-            self.pos_x -= speed * self.dt * Vector3D::cross(self.front, self.up); 
+            self.pos -= speed * self.dt * self.front.cross(self.up).normalize(); 
         }
         if window.get_key(Key::D) == Action::Press {
-            self.pos_x += speed * self.dt * Vector3D::cross(self.front, self.up); 
+            self.pos += speed * self.dt * self.front.cross(self.up).normalize(); 
         }
 
         let (w, h) = window.get_framebuffer_size();
         let aspect_ratio = w as f32 / h as f32;
-        self.proj = perspective(Deg(70.0), aspect_ratio, 0.1, 1000.0);
+        self.proj = Mat4::perspective_rh_gl(70.0f32.to_radians(), aspect_ratio, 0.1, 1000.0);
     }
 
     pub fn mouse_callback(
@@ -154,7 +149,7 @@ impl Camera {
         self.last_y = ypos;
 
         xoffs *= SENSITIVITY;
-        yoffs *= SENSITIVITY;
+        yoffs *= -SENSITIVITY;
 
         self.yaw += xoffs;
         self.pitch += yoffs;
@@ -166,24 +161,23 @@ impl Camera {
             self.pitch = -89.0;
         }
 
-        self.direction.x = Rad::cos(Rad(self.yaw)) * Rad::cos(Rad(self.pitch));
-        self.direction.y = Rad::sin(Rad(self.pitch));
-        self.direction.z = Rad::sin(Rad(self.yaw)) * Rad::cos(Rad(self.pitch));
+        self.direction.x = self.yaw.to_radians().cos() * self.pitch.to_radians().cos();
+        self.direction.y = self.pitch.to_radians().sin();
+        self.direction.z = self.yaw.to_radians().sin() * self.pitch.to_radians().cos();
 
-        self.front = Vector3D::normalize(self.direction);
+        self.front = self.direction.normalize();
     }
 
-
     // RENDERING //
-    pub unsafe fn send_uniforms(&mut self, shader: &Shader) {
+    pub unsafe fn send_uniforms(&self, shader: &Shader) {
         shader.uniform_mat4fv(
             cstr!("view"),
-            &self.view
+            &self.view.to_cols_array(),
         );
 
         shader.uniform_mat4fv(
             cstr!("proj"),
-            &self.proj
+            &self.proj.to_cols_array(),
         );
     }
 
@@ -193,12 +187,12 @@ impl Camera {
     ) {
         match projection_type {
             ProjectionType::Perspective => {
-                self.proj = perspective(Deg(70.0), 1.0, 0.1, 10000.0);
+                self.proj = Mat4::perspective_rh_gl(70.0f32.to_radians(), 1.0, 0.1, 10000.0);
             },
             ProjectionType::Orthographic => {
-                self.proj = ortho(-1.0, 1.0, -1.0, 1.0, -100.0, 100.0);
+                self.proj = Mat4::orthographic_rh(-1.0, 1.0, -1.0, 1.0, -100.0, 100.0);
             }
         }
     }
-}
-*/
+ 
+ }

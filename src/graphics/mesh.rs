@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, InstanceData, InstanceMesh, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, Camera, InstanceData, InstanceMesh, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -36,8 +36,8 @@ impl Mesh {
             VAO: 0, VBO: 0, EBO: 0,
             position: Vec3::ZERO,
             rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
-            shader: *DEFAULT_SHADER,
             scale: Vec3::ONE,
+            shader: *DEFAULT_SHADER,
         };
 
         unsafe { mesh.setup_mesh() }
@@ -55,10 +55,6 @@ impl Mesh {
         drop(self);
 
         new_mesh
-    }
-
-    pub fn set_shader(&mut self, shader: &Shader) {
-        self.shader = *shader;
     }
 
     pub fn set_position(&mut self, position: Vec3){
@@ -102,7 +98,7 @@ impl Mesh {
         
         BindVertexArray(self.VAO);
         self.shader.use_shader();
-        self.shader.uniform_mat4fv(cstr!("model"), &model_matrix);
+        self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
         self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
         BindVertexArray(0);
