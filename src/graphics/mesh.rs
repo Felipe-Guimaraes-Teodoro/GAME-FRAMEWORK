@@ -87,14 +87,16 @@ impl Mesh {
     
     pub unsafe fn draw(&self, el: &EventLoop) {
         let (w, h) = el.window.get_framebuffer_size();
-        let resolution = vec3(w as f32, h as f32, 1.0) / 2.0;
+        let resolution = vec3(w as f32, h as f32, 2.0) / 2.0;
 
+        // normalize position and scale from observated size to -1:1
         let norm_position = self.position / resolution;
+        let norm_scale = self.scale / resolution;
 
         let model_matrix = 
             Mat4::from_translation(norm_position) *
             Mat4::from_quat(self.rotation) *
-            Mat4::from_scale(self.scale);
+            Mat4::from_scale(norm_scale);
         
         BindVertexArray(self.VAO);
         self.shader.use_shader();

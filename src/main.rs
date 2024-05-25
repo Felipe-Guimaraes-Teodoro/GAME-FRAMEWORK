@@ -9,7 +9,7 @@ use tiny_game_framework::Renderer;
 use tiny_game_framework::{Circle, Triangle};
 
 fn main() {
-    let resolution = vec2(800., 800.);
+    let resolution = vec2(600., 600.);
     let mut el = EventLoop::new(resolution.x as u32, resolution.y as u32);
     let mut renderer = Renderer::new();
     renderer.camera.set_projection(tiny_game_framework::ProjectionType::Orthographic);
@@ -36,8 +36,8 @@ fn main() {
 
     renderer.add_instance_mesh("mesh", instance_mesh).unwrap();
 
-    Circle::new(16, 0.012, vec4(1.0, 0.0, 0.0, 0.0)).add_to_renderer("c", &mut renderer);
-    Line::new(vec3(0.5, 0.5, 0.), vec3(0.9, 0.5, 0.), 0.01, Vec4::ONE).add_to_renderer("l", &mut renderer);
+    let c = Cuboid::new(vec3(100., 100., 100.), vec4(1.0, 0.0, 0.0, 0.0)).mesh();
+    renderer.add_mesh("c", c).unwrap();
 
     let mut dt = 0.;
     let mut wish_pos = Vec3::ZERO;
@@ -97,8 +97,5 @@ fn main() {
             Clear(COLOR_BUFFER_BIT);
             renderer.draw(&el);
         }
-        
-        time += dt;
-        dt = now.elapsed().as_secs_f32();
     }
 }

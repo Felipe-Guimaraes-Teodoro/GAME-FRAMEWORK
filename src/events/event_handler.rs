@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use glfw::Key;
 
-use glam::{vec2, Vec2};
+use glam::Vec2;
 
 pub struct EventHandler {
     pub keys_pressed: HashMap<Key, usize>,
