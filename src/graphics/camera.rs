@@ -4,7 +4,6 @@ use crate::glam::{vec3, Vec3, Mat4};
 use std::ffi::CString;
 
 const UP: Vec3 = Vec3::Y;
-const SPEED: f32 = 5.0;
 const SENSITIVITY: f32 = 0.1; // todo: make this editable
 
 pub enum ProjectionType {
@@ -26,6 +25,8 @@ pub struct Camera {
 
     pub pitch: f32,
     pub yaw: f32,
+
+    pub speed: f32,
 
     pub dt: f32,
     last_frame: f32,
@@ -62,6 +63,8 @@ impl Camera {
             front,
             up,
 
+            speed: 1.0,
+
             pitch,
             yaw,
 
@@ -89,7 +92,7 @@ impl Camera {
         window: &glfw::Window, 
         glfw: &glfw::Glfw,
     ) {
-        let mut speed = SPEED;
+        let mut speed = self.speed;
         let curr_frame = glfw.get_time() as f32;
         self.dt = curr_frame - self.last_frame;
         self.last_frame = curr_frame;
@@ -121,7 +124,7 @@ impl Camera {
             self.pos += speed * self.dt * self.front.cross(self.up).normalize(); 
         }
 
-        self.proj = Mat4::perspective_rh_gl(70.0f32.to_radians(), 1.0, 0.1, 1000.0);
+        self.proj = Mat4::perspective_rh_gl(70.0f32.to_radians(), 1.0, 0.0001, 1000.0);
     }
 
     pub fn mouse_callback(

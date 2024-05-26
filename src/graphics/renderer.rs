@@ -34,7 +34,8 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new() -> Self {
-        let camera = Camera::new();
+        let mut camera = Camera::new();
+        camera.set_projection(crate::ProjectionType::Orthographic);
 
         Self {
             meshes: HashMap::new(),
@@ -45,8 +46,6 @@ impl Renderer {
     }
 
     pub unsafe fn draw(&self, el: &EventLoop) {
-        let time = el.window.glfw.get_time() as f32 / 10.0;
-
         INSTANCE_SHADER.use_shader();
         self.camera.send_uniforms(&INSTANCE_SHADER);
         UseProgram(0);
