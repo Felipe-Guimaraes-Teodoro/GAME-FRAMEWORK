@@ -180,7 +180,7 @@ impl Cuboid{
         let half_size = self.size/2.;
         let x = half_size.x;
         let y = half_size.y;
-        let z = half_size.z;
+        let z = half_size.z * 2.;
 
         let vertices = vec![
             // Front face
@@ -237,41 +237,41 @@ impl Sphere {
     pub fn mesh(&self) -> Mesh {
         let mut vertices = vec![];
         let pi = std::f32::consts::PI;
-        
+
         for lat in 0..=self.iterations {
             let theta = pi * lat as f32 / self.iterations as f32;
             let sin_theta = theta.sin();
             let cos_theta = theta.cos();
-        
+
             for lon in 0..=self.iterations {
                 let phi = 2.0 * pi * lon as f32 / self.iterations as f32;
                 let sin_phi = phi.sin();
                 let cos_phi = phi.cos();
-        
-                let x = cos_phi * sin_theta;
-                let y = cos_theta;
-                let z = sin_phi * sin_theta;
-        
-                vertices.push(Vertex::new(vec3(x, y, z) * self.radius, self.color));
+
+                let x = cos_phi * sin_theta * self.radius;
+                let y = cos_theta * self.radius;
+                let z = sin_phi * sin_theta * self.radius;
+
+                vertices.push(Vertex::new(vec3(x, y, z), self.color));
             }
         }
-        
+
         let mut indices = vec![];
         for lat in 0..self.iterations {
             for lon in 0..self.iterations {
                 let first = lat * (self.iterations + 1) + lon;
                 let second = first + self.iterations + 1;
-        
+
                 indices.push(first as u32);
                 indices.push(second as u32);
                 indices.push((first + 1) as u32);
-        
+
                 indices.push(second as u32);
                 indices.push((second + 1) as u32);
                 indices.push((first + 1) as u32);
             }
         }
-        
+
         Mesh::new(&vertices, &indices)
     }
 }
