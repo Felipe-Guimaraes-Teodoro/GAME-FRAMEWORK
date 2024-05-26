@@ -8,7 +8,7 @@
 
 As of now, the crate aims to prioritize simplicity.
 
-# A simple 3D scene:
+## A simple 3D scene:
 
 ```rust 
 use tiny_game_framework::{
