@@ -79,7 +79,6 @@ impl Mesh {
         bind_buffer!(ARRAY_BUFFER, self.VBO, self.vertices);
         bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
         gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4);
-        // gen_attrib_pointers!(Vertex, 0 => position: 3);
 
         BindVertexArray(0);
     
@@ -97,7 +96,7 @@ impl Mesh {
             Mat4::from_translation(norm_position) *
             Mat4::from_quat(self.rotation) *
             Mat4::from_scale(norm_scale);
-        
+
         BindVertexArray(self.VAO);
         self.shader.use_shader();
         self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
