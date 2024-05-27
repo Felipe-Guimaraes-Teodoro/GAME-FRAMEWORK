@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, Camera, InstanceData, InstanceMesh, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, Camera, InstanceData, InstanceMesh, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -9,8 +9,14 @@ use gl::{*, types::GLsizei};
 use glam::{vec3, Mat4, Quat, Vec3};
 use once_cell::sync::Lazy;
 
+
+ 
 pub static DEFAULT_SHADER: Lazy<Shader> = Lazy::new(|| {
     Shader::new_pipeline(DEFAULT_MESH_SHADER_VS, DEFAULT_MESH_SHADER_FS)
+});
+
+pub static LIGHT_SHADER: Lazy<Shader> = Lazy::new(|| {
+    Shader::new_pipeline(LIGHT_MESH_SHADER_VS, LIGHT_MESH_SHADER_FS)
 });
 
 #[derive(PartialEq, Debug)]
@@ -37,7 +43,7 @@ impl Mesh {
             position: Vec3::ZERO,
             rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
             scale: Vec3::ONE,
-            shader: *DEFAULT_SHADER,
+            shader: *LIGHT_SHADER,
         };
 
         unsafe { mesh.setup_mesh() }
@@ -78,7 +84,7 @@ impl Mesh {
 
         bind_buffer!(ARRAY_BUFFER, self.VBO, self.vertices);
         bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
-        gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4);
+        gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4, 2 => normal: 3);
 
         BindVertexArray(0);
     
@@ -100,7 +106,6 @@ impl Mesh {
         BindVertexArray(self.VAO);
         self.shader.use_shader();
         self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
-        self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
         BindVertexArray(0);
         UseProgram(0);

@@ -2,7 +2,7 @@ use glam::{vec3, Vec3, Vec4};
 use once_cell::sync::Lazy;
 
 use crate::{graphics::{Mesh, Vertex}, Renderer};
-
+/* 
 pub struct Quad{
     pub size: Vec3,
     pub color: Vec4,
@@ -163,56 +163,55 @@ impl Line{
     }
 }
 
-pub struct Cuboid{
+pub struct Cuboid {
     pub size: Vec3,
     pub color: Vec4,
 }
 
-impl Cuboid{
-    pub fn new(size: Vec3, color: Vec4) -> Self{
-        Self{
-            size,
-            color,
-        }
+impl Cuboid {
+    pub fn new(size: Vec3, color: Vec4) -> Self {
+        Self { size, color }
     }
 
     pub fn mesh(&self) -> Mesh {
-        let half_size = self.size/2.;
+        let half_size = self.size / 2.0;
         let x = half_size.x;
         let y = half_size.y;
-        let z = half_size.z * 2.;
+        let z = half_size.z;
 
         let vertices = vec![
             // Front face
-            Vertex::new(vec3(-x, -y, 0.0), self.color), // 0
-            Vertex::new(vec3(x, -y, 0.0), self.color), // 1
-            Vertex::new(vec3(x, y, 0.0), self.color), // 2
-            Vertex::new(vec3(-x, y, 0.0), self.color), // 3
+            Vertex::new(vec3(-x, -y, z), self.color),  // 0
+            Vertex::new(vec3(x, -y, z), self.color),   // 1
+            Vertex::new(vec3(x, y, z), self.color),    // 2
+            Vertex::new(vec3(-x, y, z), self.color),   // 3
             // Back face
             Vertex::new(vec3(-x, -y, -z), self.color), // 4
-            Vertex::new(vec3(x, -y, -z), self.color), // 5
-            Vertex::new(vec3(x, y, -z), self.color), // 6
-            Vertex::new(vec3(-x, y, -z), self.color), // 7
+            Vertex::new(vec3(x, -y, -z), self.color),  // 5
+            Vertex::new(vec3(x, y, -z), self.color),   // 6
+            Vertex::new(vec3(-x, y, -z), self.color),  // 7
         ];
 
         let indices = vec![
             // Front face
-            0, 1, 2, 0, 2, 3,
+            0, 3, 2, 2, 1, 0,
             // Back face
-            4, 5, 6, 4, 6, 7,
+            4, 5, 6, 6, 7, 4,
             // Left face
-            0, 3, 7, 0, 7, 4,
+            0, 4, 7, 7, 3, 0,
             // Right face
-            1, 5, 6, 1, 6, 2,
+            1, 2, 6, 6, 5, 1,
             // Top face
-            3, 2, 6, 3, 6, 7,
+            3, 7, 6, 6, 2, 3,
             // Bottom face
-            0, 1, 5, 0, 5, 4,
+            0, 1, 5, 5, 4, 0,
         ];
-        
+
         Mesh::new(&vertices, &indices)
     }
 }
+
+
 
 pub struct Sphere{
     pub iterations: i32,
@@ -272,6 +271,76 @@ impl Sphere {
             }
         }
 
+        Mesh::new(&vertices, &indices)
+    }
+}
+
+*/
+
+pub struct Cuboid {
+    pub size: Vec3,
+    pub color: Vec4,
+}
+
+impl Cuboid {
+    pub fn new(size: Vec3, color: Vec4) -> Self {
+        Self { size, color }
+    }
+
+    pub fn mesh(&self) -> Mesh {
+        let half_size = self.size / 2.0;
+        let x = half_size.x;
+        let y = half_size.y;
+        let z = half_size.z;
+
+        let vertices = vec![
+            // Front face
+            Vertex::new(vec3(-x, -y, z), self.color, vec3(0.0, 0.0, 1.0)),  // 0
+            Vertex::new(vec3(x, -y, z), self.color, vec3(0.0, 0.0, 1.0)),   // 1
+            Vertex::new(vec3(x, y, z), self.color, vec3(0.0, 0.0, 1.0)),    // 2
+            Vertex::new(vec3(-x, y, z), self.color, vec3(0.0, 0.0, 1.0)),   // 3
+            // Back face
+            Vertex::new(vec3(-x, -y, -z), self.color, vec3(0.0, 0.0, -1.0)), // 4
+            Vertex::new(vec3(x, -y, -z), self.color, vec3(0.0, 0.0, -1.0)),  // 5
+            Vertex::new(vec3(x, y, -z), self.color, vec3(0.0, 0.0, -1.0)),   // 6
+            Vertex::new(vec3(-x, y, -z), self.color, vec3(0.0, 0.0, -1.0)),  // 7
+            // Left face
+            Vertex::new(vec3(-x, -y, -z), self.color, vec3(-1.0, 0.0, 0.0)), // 8
+            Vertex::new(vec3(-x, -y, z), self.color, vec3(-1.0, 0.0, 0.0)),  // 9
+            Vertex::new(vec3(-x, y, z), self.color, vec3(-1.0, 0.0, 0.0)),   // 10
+            Vertex::new(vec3(-x, y, -z), self.color, vec3(-1.0, 0.0, 0.0)),  // 11
+            // Right face
+            Vertex::new(vec3(x, -y, -z), self.color, vec3(1.0, 0.0, 0.0)),  // 12
+            Vertex::new(vec3(x, -y, z), self.color, vec3(1.0, 0.0, 0.0)),   // 13
+            Vertex::new(vec3(x, y, z), self.color, vec3(1.0, 0.0, 0.0)),    // 14
+            Vertex::new(vec3(x, y, -z), self.color, vec3(1.0, 0.0, 0.0)),   // 15
+            // Top face
+            Vertex::new(vec3(-x, y, -z), self.color, vec3(0.0, 1.0, 0.0)),  // 16
+            Vertex::new(vec3(-x, y, z), self.color, vec3(0.0, 1.0, 0.0)),   // 17
+            Vertex::new(vec3(x, y, z), self.color, vec3(0.0, 1.0, 0.0)),    // 18
+            Vertex::new(vec3(x, y, -z), self.color, vec3(0.0, 1.0, 0.0)),   // 19
+            // Bottom face
+            Vertex::new(vec3(-x, -y, -z), self.color, vec3(0.0, -1.0, 0.0)), // 20
+            Vertex::new(vec3(-x, -y, z), self.color, vec3(0.0, -1.0, 0.0)),  // 21
+            Vertex::new(vec3(x, -y, z), self.color, vec3(0.0, -1.0, 0.0)),   // 22
+            Vertex::new(vec3(x, -y, -z), self.color, vec3(0.0, -1.0, 0.0)),  // 23
+        ];  
+        
+        let indices = vec![
+            // Front face
+            0, 3, 2, 2, 1, 0,
+            // Back face
+            4, 5, 6, 6, 7, 4,
+            // Left face
+            8, 11, 10, 10, 9, 8,
+            // Right face
+            12, 13, 14, 14, 15, 12,
+            // Top face
+            16, 19, 18, 18, 17, 16,
+            // Bottom face
+            20, 21, 22, 22, 23, 20
+        ];
+        
         Mesh::new(&vertices, &indices)
     }
 }
