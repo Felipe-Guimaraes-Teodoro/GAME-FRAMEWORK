@@ -1,11 +1,8 @@
 use gl::{Enable, DEPTH_BUFFER_BIT, DEPTH_TEST};
-use glam::{Quat, Vec3};
-use glfw::{Action, Key};
-use tiny_game_framework::glam::Vec2;
-use tiny_game_framework::imgui::ImColor32;
+use glam::Vec3;
 use tiny_game_framework::gl::{Clear, COLOR_BUFFER_BIT};
 use tiny_game_framework::glam::{vec2, vec3, vec4, Vec4};
-use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, Cuboid, EventLoop, InstanceData, Line, Sphere};
+use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, Cuboid, EventLoop, InstanceData, Line, Quad, Sphere, Texture};
 use tiny_game_framework::Renderer;
 
 use tiny_game_framework::{Circle, Triangle};
@@ -20,28 +17,21 @@ fn main() {
     unsafe {
         Enable(DEPTH_TEST);
     }
+    
+    let c = Cuboid::new(vec3(1000., 1000., 1000.), Vec4::ONE, Texture::Path("src/graphics/images/cobble_tex.png".to_owned())).mesh();
+    renderer.add_mesh("c", c).unwrap();
 
-    // let c = Cuboid::new(vec3(600., 600., 1.5), vec4(0.1, 0.0, 0.0, 1.0)).mesh();
-    // renderer.add_mesh("c", c).unwrap();
+    let mut s = Sphere::new(32, 500., Vec4::ONE, Texture::Path("src/graphics/images/hqdefault.jpg".to_owned())).mesh();
+    s.add_position(vec3(1500., 0., 0.));
+    renderer.add_mesh("s", s).unwrap();
 
-    // let s = Sphere::new(16, 100.0, Vec4::ONE).mesh();
-    // renderer.add_mesh("s", s).unwrap();
+    let mut t = Triangle::new(5000., vec4(1., 0.1, 0., 1.), Texture::Path("src/graphics/images/amongus.jpg".to_owned())).mesh();
+    t.add_position(vec3(-1500., 0., 0.));
+    renderer.add_mesh("t", t).unwrap();
 
-    let size = 10;
-    let spacing = 30.;
-    let mut counter = 0;
-
-    for x in 0..size{
-        for y in 0..size{
-            for z in 0..size{
-                let mut c = Cuboid::new(vec3(15., 15., 15.), Vec4::ONE).mesh();
-                c.set_position(vec3(x as f32, y as f32, z as f32)*spacing);
-
-                counter += 1;
-                renderer.add_mesh(&format!("{:?}", counter), c).unwrap();
-            }
-        }
-    }
+    let mut q = Quad::new(vec3(350., 492., 0.)*2., Vec4::ONE, Texture::Path("src/graphics/images/roblux.jpg".to_owned())).mesh();
+    q.add_position(vec3(0., -3500., 0.));
+    renderer.add_mesh("q", q).unwrap();
 
     renderer.camera.speed = 0.5;
 
@@ -56,19 +46,6 @@ fn main() {
 
         frame.menu_item_config(format!("f: {:.2} | dt(ms): {:.2}", 1.0/el.dt, el.dt*1000.0)).build();
         frame.text(format!("t: {:.1}", el.time));
-
-        if el.is_key_down(Key::Q){
-            renderer.get_mesh_mut("1").unwrap().position.x += 1.;
-            println!("Q");
-        }
-        if el.is_key_down(Key::E){
-            renderer.get_mesh_mut("1").unwrap().position.y += 1.;
-            println!("E");
-        }
-        if el.is_key_down(Key::R){
-            renderer.get_mesh_mut("1").unwrap().position.z += 1.;
-            println!("R");
-        }
 
         unsafe {
             Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);

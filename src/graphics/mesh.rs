@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, Camera, InstanceData, InstanceMesh, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, load_texture, Camera, InstanceData, InstanceMesh, Texture};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -26,17 +26,20 @@ pub struct Mesh {
     pub rotation: Quat,
     pub scale: Vec3,
 
+    pub texture: Texture,
+
     shader: Shader,
 }
 
 impl Mesh {
-    pub fn new(vertices: &Vec<Vertex>, indices: &Vec<u32>) -> Self {
+    pub fn new(vertices: &Vec<Vertex>, indices: &Vec<u32>, texture: Texture) -> Self {
         let mut mesh = Mesh {
             vertices: vertices.to_vec(), indices: indices.to_vec(),
             VAO: 0, VBO: 0, EBO: 0,
             position: Vec3::ZERO,
             rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
             scale: Vec3::ONE,
+            texture,
             shader: *DEFAULT_SHADER,
         };
 
@@ -78,19 +81,24 @@ impl Mesh {
 
         bind_buffer!(ARRAY_BUFFER, self.VBO, self.vertices);
         bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
-        gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4);
+        gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4, 2 => tex_coords: 2);
 
         BindVertexArray(0);
     
+        if let Texture::Path(ref path) = self.texture {
+            self.texture = Texture::Loaded(load_texture(path));
+        }
+        else{
+            // handle for no texture given
+        }
     }
     
     pub unsafe fn draw(&self, el: &EventLoop) {
         let (w, h) = el.window.get_framebuffer_size();
         let resolution = w.max(h) as f32;
 
-        // normalize position and scale from observated size to -1:1
         let norm_position = self.position / resolution;
-        let mut norm_scale = self.scale / resolution;
+        let norm_scale = self.scale / resolution;
 
         let model_matrix = 
             Mat4::from_translation(norm_position) *
@@ -99,21 +107,31 @@ impl Mesh {
 
         BindVertexArray(self.VAO);
         self.shader.use_shader();
+
+        // Bind the texture if it is loaded
+        if let Texture::Loaded(texture_id) = self.texture {
+            gl::BindTexture(gl::TEXTURE_2D, texture_id);
+        }
+
+        // Set uniforms and draw
         self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
         self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
+
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
+
         BindVertexArray(0);
         UseProgram(0);
     }
 }
 
 impl Renderer {
-    pub fn add_mesh_from_vertices_and_indices(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>) -> Result<(), String> {
+    pub fn add_mesh_from_vertices_and_indices(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>, texture: Texture) -> Result<(), String> {
         if self.meshes.contains_key(name) {
             return Err(format!("Mesh with name '{}' already exists", name));
         }
 
-        let mesh = Mesh::new(&vertices, &indices);
+        let mesh = Mesh::new(&vertices, &indices, texture);
+        
         self.meshes.insert(name.to_owned(), mesh);
         Ok(())
     }

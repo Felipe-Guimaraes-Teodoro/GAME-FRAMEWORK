@@ -3,10 +3,7 @@ use std::collections::HashMap;
 use gl::UseProgram;
 use glam::{vec3, Vec2, Vec3, Vec4};
 
-use crate::{cstr, Camera, EventLoop, InstanceMesh, Shader, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS, DEFAULT_SHADER, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS, INSTANCE_SHADER};
-use std::ffi::CString;
-
-use crate::utils::rand_betw;
+use crate::{Camera, EventLoop, InstanceMesh, DEFAULT_SHADER, INSTANCE_SHADER};
 
 use super::Mesh;
 
@@ -14,13 +11,15 @@ use super::Mesh;
 pub struct Vertex {
     pub position: Vec3,
     pub color: Vec4,
+    pub tex_coords: Vec2,
 }
 
 impl Vertex {
-    pub fn new(position: Vec3, color: Vec4) -> Self {
+    pub fn new(position: Vec3, color: Vec4, tex_coords: Vec2) -> Self {
         Self {
             position,
             color,
+            tex_coords,
         }
     }
 }

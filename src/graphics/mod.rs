@@ -6,7 +6,9 @@ mod test_scene;
 mod SHADERS;
 mod r#macro;
 mod instance_mesh;
+mod texture;
 
+pub use texture::*;
 pub use renderer::*;
 pub use camera::*;
 pub use mesh::*;
