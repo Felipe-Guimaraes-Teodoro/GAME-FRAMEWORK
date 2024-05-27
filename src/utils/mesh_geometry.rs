@@ -211,32 +211,66 @@ impl Cuboid{
         let z = half_size.z;
 
         let vertices = vec![
-            // Front face
             Vertex::new(vec3(-x, -y, z), self.color, vec2(0.0, 0.0)),    // 0
             Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 0.0)),     // 1
             Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0)),      // 2
             Vertex::new(vec3(-x, y, z), self.color, vec2(0.0, 1.0)),     // 3
 
             // Back face
-            Vertex::new(vec3(-x, -y, -z), self.color, vec2(1.0, 0.0)),   // 4
-            Vertex::new(vec3(x, -y, -z), self.color, vec2(0.0, 0.0)),    // 5
-            Vertex::new(vec3(x, y, -z), self.color, vec2(0.0, 1.0)),     // 6
-            Vertex::new(vec3(-x, y, -z), self.color, vec2(1.0, 1.0)),    // 7
+            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0)),   // 4
+            Vertex::new(vec3(x, -y, -z), self.color, vec2(1.0, 0.0)),    // 5
+            Vertex::new(vec3(x, y, -z), self.color, vec2(1.0, 1.0)),     // 6
+            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 1.0)),    // 7
+
+            // Left face
+            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0)),   // 8
+            Vertex::new(vec3(-x, -y, z), self.color, vec2(1.0, 0.0)),    // 9
+            Vertex::new(vec3(-x, y, z), self.color, vec2(1.0, 1.0)),     // 10
+            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 1.0)),    // 11
+
+            // Right face
+            Vertex::new(vec3(x, -y, -z), self.color, vec2(0.0, 0.0)),    // 12
+            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 0.0)),     // 13
+            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0)),      // 14
+            Vertex::new(vec3(x, y, -z), self.color, vec2(0.0, 1.0)),     // 15
+
+            // Top face
+            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 0.0)),    // 16
+            Vertex::new(vec3(x, y, -z), self.color, vec2(1.0, 0.0)),     // 17
+            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0)),      // 18
+            Vertex::new(vec3(-x, y, z), self.color, vec2(0.0, 1.0)),     // 19
+
+            // Bottom face
+            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0)),   // 20
+            Vertex::new(vec3(x, -y, -z), self.color, vec2(1.0, 0.0)),    // 21
+            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 1.0)),     // 22
+            Vertex::new(vec3(-x, -y, z), self.color, vec2(0.0, 1.0)),    // 23
         ];
 
         let indices = vec![
             // Front face
-            0, 1, 2, 0, 2, 3,
+            0, 1, 2,    // Triangle 1
+            2, 3, 0,    // Triangle 2
+
             // Back face
-            4, 5, 6, 4, 6, 7,
+            4, 5, 6,    // Triangle 3
+            6, 7, 4,    // Triangle 4
+
             // Left face
-            0, 3, 7, 0, 7, 4,
+            8, 9, 10,   // Triangle 5
+            10, 11, 8,  // Triangle 6
+
             // Right face
-            1, 5, 6, 1, 6, 2,
+            12, 13, 14, // Triangle 7
+            14, 15, 12, // Triangle 8
+
             // Top face
-            3, 2, 6, 3, 6, 7,
+            16, 17, 18, // Triangle 9
+            18, 19, 16, // Triangle 10
+
             // Bottom face
-            0, 1, 5, 0, 5, 4,
+            20, 21, 22, // Triangle 11
+            22, 23, 20, // Triangle 12
         ];
         
         Mesh::new(&vertices, &indices, self.texture.clone())
