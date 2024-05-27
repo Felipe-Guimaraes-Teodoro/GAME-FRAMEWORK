@@ -7,7 +7,7 @@ use tiny_game_framework::glam::Vec2;
 use tiny_game_framework::imgui::ImColor32;
 use tiny_game_framework::gl::{Clear, COLOR_BUFFER_BIT};
 use tiny_game_framework::glam::{vec2, vec3, vec4, Vec4};
-use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, Cuboid, EventHandler, EventLoop, InstanceData, Shader, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
+use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, Cuboid, EventHandler, EventLoop, Font, InstanceData, Shader, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
 use tiny_game_framework::Renderer;
 
 
@@ -25,6 +25,10 @@ fn main() {
         CullFace(BACK);
         FrontFace(CW);
     }
+    
+    let mut font = unsafe {
+        Font::init(resolution.x, resolution.y, "C:/Users/Usuario/Documents/Xfer/Serum Presets/Skins/Default/Fonts/Nunito-Regular.ttf")
+    };
 
     let w = 100;
     let h = 100;
@@ -129,6 +133,11 @@ fn main() {
 
             Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
             renderer.draw(&el);
+
+            font.render_text(&format!("random char: {:?}", rand_betw('a', 'z')), 25.0, 25.0, 1.0, vec3(1.0, 1.0, 1.0));
+            font.render_text("build 0.135", 25.0, 75.0, 1.0, vec3(1.0, 1.0, 1.0));
+            font.render_text("Tiny Game Framework", 25.0, 125.0, 1.0, vec3(1.0, 1.0, 1.0));
+
 
             el.ui.draw();
         }
