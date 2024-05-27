@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, Camera, InstanceData, InstanceMesh, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, load_texture, Camera, InstanceData, InstanceMesh, Texture, INSTANCE_MESH_SHADER_FS, INSTANCE_MESH_SHADER_VS, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -46,6 +46,7 @@ impl Mesh {
             rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
             scale: Vec3::ONE,
             shader: *LIGHT_SHADER,
+            texture,
         };
 
         unsafe { mesh.setup_mesh() }

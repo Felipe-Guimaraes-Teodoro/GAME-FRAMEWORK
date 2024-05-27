@@ -189,7 +189,7 @@ pub struct Line{
 //     }
 // }
 
-pub struct Cuboid {
+pub struct Cuboid{
     pub size: Vec3,
     pub color: Vec4,
     pub texture: Texture
@@ -205,7 +205,7 @@ impl Cuboid{
     }
 
     pub fn mesh(&self) -> Mesh {
-        let half_size = self.size / 2.0;
+        let half_size = self.size/2.;
         let x = half_size.x;
         let y = half_size.y;
         let z = half_size.z;
@@ -277,8 +277,6 @@ impl Cuboid{
     }
 }
 
-
-
 pub struct Sphere{
     pub iterations: i32,
     pub radius: f32,
@@ -344,75 +342,5 @@ impl Sphere {
         }
 
         Mesh::new(&vertices, &indices, self.texture.clone())
-    }
-}
-
-*/
-
-pub struct Cuboid {
-    pub size: Vec3,
-    pub color: Vec4,
-}
-
-impl Cuboid {
-    pub fn new(size: Vec3, color: Vec4) -> Self {
-        Self { size, color }
-    }
-
-    pub fn mesh(&self) -> Mesh {
-        let half_size = self.size / 2.0;
-        let x = half_size.x;
-        let y = half_size.y;
-        let z = half_size.z;
-
-        let vertices = vec![
-            // Front face
-            Vertex::new(vec3(-x, -y, z), self.color, vec3(0.0, 0.0, 1.0)),  // 0
-            Vertex::new(vec3(x, -y, z), self.color, vec3(0.0, 0.0, 1.0)),   // 1
-            Vertex::new(vec3(x, y, z), self.color, vec3(0.0, 0.0, 1.0)),    // 2
-            Vertex::new(vec3(-x, y, z), self.color, vec3(0.0, 0.0, 1.0)),   // 3
-            // Back face
-            Vertex::new(vec3(-x, -y, -z), self.color, vec3(0.0, 0.0, -1.0)), // 4
-            Vertex::new(vec3(x, -y, -z), self.color, vec3(0.0, 0.0, -1.0)),  // 5
-            Vertex::new(vec3(x, y, -z), self.color, vec3(0.0, 0.0, -1.0)),   // 6
-            Vertex::new(vec3(-x, y, -z), self.color, vec3(0.0, 0.0, -1.0)),  // 7
-            // Left face
-            Vertex::new(vec3(-x, -y, -z), self.color, vec3(-1.0, 0.0, 0.0)), // 8
-            Vertex::new(vec3(-x, -y, z), self.color, vec3(-1.0, 0.0, 0.0)),  // 9
-            Vertex::new(vec3(-x, y, z), self.color, vec3(-1.0, 0.0, 0.0)),   // 10
-            Vertex::new(vec3(-x, y, -z), self.color, vec3(-1.0, 0.0, 0.0)),  // 11
-            // Right face
-            Vertex::new(vec3(x, -y, -z), self.color, vec3(1.0, 0.0, 0.0)),  // 12
-            Vertex::new(vec3(x, -y, z), self.color, vec3(1.0, 0.0, 0.0)),   // 13
-            Vertex::new(vec3(x, y, z), self.color, vec3(1.0, 0.0, 0.0)),    // 14
-            Vertex::new(vec3(x, y, -z), self.color, vec3(1.0, 0.0, 0.0)),   // 15
-            // Top face
-            Vertex::new(vec3(-x, y, -z), self.color, vec3(0.0, 1.0, 0.0)),  // 16
-            Vertex::new(vec3(-x, y, z), self.color, vec3(0.0, 1.0, 0.0)),   // 17
-            Vertex::new(vec3(x, y, z), self.color, vec3(0.0, 1.0, 0.0)),    // 18
-            Vertex::new(vec3(x, y, -z), self.color, vec3(0.0, 1.0, 0.0)),   // 19
-            // Bottom face
-            Vertex::new(vec3(-x, -y, -z), self.color, vec3(0.0, -1.0, 0.0)), // 20
-            Vertex::new(vec3(-x, -y, z), self.color, vec3(0.0, -1.0, 0.0)),  // 21
-            Vertex::new(vec3(x, -y, z), self.color, vec3(0.0, -1.0, 0.0)),   // 22
-            Vertex::new(vec3(x, -y, -z), self.color, vec3(0.0, -1.0, 0.0)),  // 23
-        ];  
-        
-        let indices = vec![
-            // Front face
-            0, 3, 2, 2, 1, 0,
-            // Back face
-            4, 5, 6, 6, 7, 4,
-            // Left face
-            8, 11, 10, 10, 9, 8,
-            // Right face
-            12, 13, 14, 14, 15, 12,
-            // Top face
-            16, 19, 18, 18, 17, 16,
-            // Bottom face
-            20, 21, 22, 22, 23, 20
-        ];
-        
-        Mesh::new(&vertices, &indices)
     }
 }

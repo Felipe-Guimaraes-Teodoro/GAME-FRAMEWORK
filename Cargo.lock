@@ -169,27 +169,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-name = "freetype-rs"
-version = "0.36.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5442dee36ca09604133580dc0553780e867936bb3cbef3275859e889026d2b17"
-dependencies = [
- "bitflags 2.5.0",
- "freetype-sys",
- "libc",
-]
-
-[[package]]
-name = "freetype-sys"
-version = "0.20.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e7edc5b9669349acfda99533e9e0bcf26a51862ab43b08ee7745c55d28eb134"
-dependencies = [
- "cc",
- "libc",
- "pkg-config",
-=======
 name = "color_quant"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -289,7 +268,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55ac459de2512911e4b674ce33cf20befaba382d05b62b008afc1c8b57cbf181"
 dependencies = [
  "spin",
->>>>>>> 7f357f9d8255ef4f3011bef334faf377472e20f8
+]
+
+[[package]]
+name = "freetype-rs"
+version = "0.36.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5442dee36ca09604133580dc0553780e867936bb3cbef3275859e889026d2b17"
+dependencies = [
+ "bitflags 2.5.0",
+ "freetype-sys",
+ "libc",
+]
+
+[[package]]
+name = "freetype-sys"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0e7edc5b9669349acfda99533e9e0bcf26a51862ab43b08ee7745c55d28eb134"
+dependencies = [
+ "cc",
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -705,23 +705,18 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-=======
 name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
->>>>>>> 7f357f9d8255ef4f3011bef334faf377472e20f8
 name = "pkg-config"
 version = "0.3.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d231b230927b5e4ad203db57bbcbee2802f6bce620b1e4a9024a07d94e2907ec"
 
 [[package]]
-<<<<<<< HEAD
-=======
 name = "png"
 version = "0.17.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -735,7 +730,6 @@ dependencies = [
 ]
 
 [[package]]
->>>>>>> 7f357f9d8255ef4f3011bef334faf377472e20f8
 name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
