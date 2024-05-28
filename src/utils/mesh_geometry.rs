@@ -1,20 +1,22 @@
 use glam::{vec2, vec3, Vec3, Vec4};
 use once_cell::sync::Lazy;
 
-use crate::{graphics::{Mesh, Vertex}, Renderer, Texture};
+use crate::{graphics::{Mesh, Vertex}, Renderer, Shader, ShaderType, Texture};
 
 pub struct Quad{
     pub size: Vec3,
     pub color: Vec4,
     pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Quad{
-    pub fn new(size: Vec3, color: Vec4, texture: Texture) -> Self{
+    pub fn new(size: Vec3, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         Self{
             size,
             color,
             texture,
+            shader_type,
         }
     }
 
@@ -29,7 +31,7 @@ impl Quad{
 
         let indices = vec![0, 2, 1, 2, 3, 1];
         
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }
 
@@ -37,11 +39,12 @@ pub struct Circle{
     pub iterations: i32,
     pub radius: f32,
     pub color: Vec4,
-    pub texture: Texture
+    pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Circle {
-    pub fn new(iterations: i32, radius: f32, color: Vec4, texture: Texture) -> Self{
+    pub fn new(iterations: i32, radius: f32, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         let mut fixed_iterations = iterations;
         if iterations <= 3{
             fixed_iterations = 4;
@@ -52,6 +55,7 @@ impl Circle {
             radius,
             color,
             texture,
+            shader_type,
         }
     }
 
@@ -77,22 +81,24 @@ impl Circle {
             indices.push((i % self.iterations + 1) as u32);
         }
 
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }
 
 pub struct Triangle{
     pub size: f32,
     pub color: Vec4,
-    pub texture: Texture
+    pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Triangle{
-    pub fn new(size: f32, color: Vec4, texture: Texture) -> Self{
+    pub fn new(size: f32, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         Self {
             size,
             color,
-            texture
+            texture,
+            shader_type,
         }
     }
 
@@ -121,7 +127,7 @@ impl Triangle{
             indices.push(2 as u32);
             // Shamelessly (ok theres a bit of shame) stole my own circle rendering code so I just set it to three vertices
 
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }
 
@@ -130,19 +136,21 @@ pub struct Line{
     end: Vec3,
     width: f32,
     color: Vec4,
-    texture: Texture
+    texture: Texture,
+    shader_type: ShaderType,
 }
 
 // yeah we doin this later for sure for sure
 
 // impl Line{
-//     pub fn new(begin: Vec3, end: Vec3, width: f32, color: Vec4, texture: Texture) -> Self{
+//     pub fn new(begin: Vec3, end: Vec3, width: f32, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
 //         Self{
 //             begin,
 //             end,
 //             width,
 //             color,
 //             texture,
+//             shader_type,
 //         }
 //     }
 
@@ -185,22 +193,24 @@ pub struct Line{
 //             // indices.push(0);
 //             // indices.push(3);
 
-//             // renderer.add_mesh(name, Mesh::new(&vertices, &indices, self.texture)).unwrap();
+//             // renderer.add_mesh(name, Mesh::new(&vertices, &indices, self.texture, &self.shader_type)).unwrap();
 //     }
 // }
 
 pub struct Cuboid{
     pub size: Vec3,
     pub color: Vec4,
-    pub texture: Texture
+    pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Cuboid{
-    pub fn new(size: Vec3, color: Vec4, texture: Texture) -> Self{
+    pub fn new(size: Vec3, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         Self{
             size,
             color,
             texture,
+            shader_type,
         }
     }
 
@@ -273,7 +283,7 @@ impl Cuboid{
             22, 23, 20, // Triangle 12
         ];
         
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }
 
@@ -282,10 +292,11 @@ pub struct Sphere{
     pub radius: f32,
     pub color: Vec4,
     pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Sphere {
-    pub fn new(iterations: i32, radius: f32, color: Vec4, texture: Texture) -> Self{
+    pub fn new(iterations: i32, radius: f32, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         let mut fixed_iterations = iterations;
         if iterations <= 3{
             fixed_iterations = 4;
@@ -296,6 +307,7 @@ impl Sphere {
             radius,
             color,
             texture,
+            shader_type,
         }
     }
 
@@ -341,6 +353,6 @@ impl Sphere {
             }
         }
 
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }

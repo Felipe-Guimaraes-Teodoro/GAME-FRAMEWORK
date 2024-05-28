@@ -7,7 +7,9 @@ mod SHADERS;
 mod r#macro;
 mod instance_mesh;
 mod texture;
+mod shader_types;
 
+pub use shader_types::*;
 pub use texture::*;
 pub use renderer::*;
 pub use camera::*;

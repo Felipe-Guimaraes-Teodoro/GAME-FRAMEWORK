@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, load_texture, Camera, InstanceData, InstanceMesh, Texture};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, load_texture, Camera, InstanceData, InstanceMesh, ShaderType, Texture, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
@@ -11,6 +11,10 @@ use once_cell::sync::Lazy;
 
 pub static DEFAULT_SHADER: Lazy<Shader> = Lazy::new(|| {
     Shader::new_pipeline(DEFAULT_MESH_SHADER_VS, DEFAULT_MESH_SHADER_FS)
+});
+
+pub static LIGHT_SHADER: Lazy<Shader> = Lazy::new(|| {
+    Shader::new_pipeline(LIGHT_MESH_SHADER_VS, LIGHT_MESH_SHADER_FS)
 });
 
 #[derive(PartialEq, Debug)]
@@ -28,11 +32,23 @@ pub struct Mesh {
 
     pub texture: Texture,
 
+    pub normal: Vec3,
+
     shader: Shader,
 }
 
 impl Mesh {
-    pub fn new(vertices: &Vec<Vertex>, indices: &Vec<u32>, texture: Texture) -> Self {
+    pub fn new(vertices: &Vec<Vertex>, indices: &Vec<u32>, texture: Texture, shader_type: &ShaderType) -> Self {
+        let shader: Shader;
+        match shader_type{
+            ShaderType::Default() => {
+                shader = *DEFAULT_SHADER;
+            }
+            ShaderType::Light() => {
+                shader = *LIGHT_SHADER;
+            }
+        }
+
         let mut mesh = Mesh {
             vertices: vertices.to_vec(), indices: indices.to_vec(),
             VAO: 0, VBO: 0, EBO: 0,
@@ -40,7 +56,8 @@ impl Mesh {
             rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
             scale: Vec3::ONE,
             texture,
-            shader: *DEFAULT_SHADER,
+            normal: vec3(1., 1., 1.),
+            shader: shader,
         };
 
         unsafe { mesh.setup_mesh() }
@@ -81,16 +98,16 @@ impl Mesh {
 
         bind_buffer!(ARRAY_BUFFER, self.VBO, self.vertices);
         bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
-        gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4, 2 => tex_coords: 2);
+        gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4, 2 => tex_coords: 2, 3 => normal: 3);
 
-        BindVertexArray(0);
-    
         if let Texture::Path(ref path) = self.texture {
             self.texture = Texture::Loaded(load_texture(path));
         }
         else{
-            // handle for no texture given
+            self.texture = Texture::Loaded(0);
         }
+
+        BindVertexArray(0);
     }
     
     pub unsafe fn draw(&self, el: &EventLoop) {
@@ -116,6 +133,9 @@ impl Mesh {
         // Set uniforms and draw
         self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
         self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
+        
+        self.shader.uniform_vec3f(cstr!("lightPos"), &vec3(0., 550., -600.));
+        self.shader.uniform_vec3f(cstr!("lightColor"), &vec3(1., 0., 1.));
 
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
 
@@ -125,12 +145,12 @@ impl Mesh {
 }
 
 impl Renderer {
-    pub fn add_mesh_from_vertices_and_indices(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>, texture: Texture) -> Result<(), String> {
+    pub fn add_mesh_from_vertices_and_indices(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<u32>, texture: Texture, shader_type: &ShaderType) -> Result<(), String> {
         if self.meshes.contains_key(name) {
             return Err(format!("Mesh with name '{}' already exists", name));
         }
 
-        let mesh = Mesh::new(&vertices, &indices, texture);
+        let mesh = Mesh::new(&vertices, &indices, texture, shader_type);
         
         self.meshes.insert(name.to_owned(), mesh);
         Ok(())

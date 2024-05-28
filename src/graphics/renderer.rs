@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use gl::UseProgram;
 use glam::{vec3, Vec2, Vec3, Vec4};
 
-use crate::{Camera, EventLoop, InstanceMesh, DEFAULT_SHADER, INSTANCE_SHADER};
+use crate::{Camera, EventLoop, InstanceMesh, DEFAULT_SHADER, INSTANCE_SHADER, LIGHT_SHADER};
 
 use super::Mesh;
 
@@ -12,6 +12,7 @@ pub struct Vertex {
     pub position: Vec3,
     pub color: Vec4,
     pub tex_coords: Vec2,
+    pub normal: Vec3,
 }
 
 impl Vertex {
@@ -20,6 +21,7 @@ impl Vertex {
             position,
             color,
             tex_coords,
+            normal: vec3(1., 1., 1.),
         }
     }
 }
@@ -51,6 +53,10 @@ impl Renderer {
 
         DEFAULT_SHADER.use_shader();
         self.camera.send_uniforms(&DEFAULT_SHADER);
+        UseProgram(0);
+
+        LIGHT_SHADER.use_shader();
+        self.camera.send_uniforms(&LIGHT_SHADER);
         UseProgram(0);
 
         for value in &self.instance_meshes {
