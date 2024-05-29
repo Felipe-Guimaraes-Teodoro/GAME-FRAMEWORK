@@ -1,20 +1,22 @@
 use glam::{vec2, vec3, Vec3, Vec4};
 use once_cell::sync::Lazy;
 
-use crate::{graphics::{Mesh, Vertex}, Renderer, Texture};
-
+use crate::{graphics::{Mesh, Vertex}, Renderer, Shader, ShaderType, Texture};
+/* 
 pub struct Quad{
     pub size: Vec3,
     pub color: Vec4,
     pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Quad{
-    pub fn new(size: Vec3, color: Vec4, texture: Texture) -> Self{
+    pub fn new(size: Vec3, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         Self{
             size,
             color,
             texture,
+            shader_type,
         }
     }
 
@@ -29,7 +31,7 @@ impl Quad{
 
         let indices = vec![0, 2, 1, 2, 3, 1];
         
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }
 
@@ -37,11 +39,12 @@ pub struct Circle{
     pub iterations: i32,
     pub radius: f32,
     pub color: Vec4,
-    pub texture: Texture
+    pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Circle {
-    pub fn new(iterations: i32, radius: f32, color: Vec4, texture: Texture) -> Self{
+    pub fn new(iterations: i32, radius: f32, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         let mut fixed_iterations = iterations;
         if iterations <= 3{
             fixed_iterations = 4;
@@ -52,6 +55,7 @@ impl Circle {
             radius,
             color,
             texture,
+            shader_type,
         }
     }
 
@@ -77,22 +81,24 @@ impl Circle {
             indices.push((i % self.iterations + 1) as u32);
         }
 
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }
 
 pub struct Triangle{
     pub size: f32,
     pub color: Vec4,
-    pub texture: Texture
+    pub texture: Texture,
+    shader_type: ShaderType,
 }
 
 impl Triangle{
-    pub fn new(size: f32, color: Vec4, texture: Texture) -> Self{
+    pub fn new(size: f32, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
         Self {
             size,
             color,
-            texture
+            texture,
+            shader_type,
         }
     }
 
@@ -121,28 +127,28 @@ impl Triangle{
             indices.push(2 as u32);
             // Shamelessly (ok theres a bit of shame) stole my own circle rendering code so I just set it to three vertices
 
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices, self.texture.clone(), &self.shader_type)
     }
 }
-
+*/
 pub struct Line{
     begin: Vec3,
     end: Vec3,
     width: f32,
     color: Vec4,
-    texture: Texture
 }
 
 // yeah we doin this later for sure for sure
 
 // impl Line{
-//     pub fn new(begin: Vec3, end: Vec3, width: f32, color: Vec4, texture: Texture) -> Self{
+//     pub fn new(begin: Vec3, end: Vec3, width: f32, color: Vec4, texture: Texture, shader_type: ShaderType) -> Self{
 //         Self{
 //             begin,
 //             end,
 //             width,
 //             color,
 //             texture,
+//             shader_type,
 //         }
 //     }
 
@@ -185,22 +191,20 @@ pub struct Line{
 //             // indices.push(0);
 //             // indices.push(3);
 
-//             // renderer.add_mesh(name, Mesh::new(&vertices, &indices, self.texture)).unwrap();
+//             // renderer.add_mesh(name, Mesh::new(&vertices, &indices, self.texture, &self.shader_type)).unwrap();
 //     }
 // }
 
 pub struct Cuboid{
     pub size: Vec3,
     pub color: Vec4,
-    pub texture: Texture
 }
 
 impl Cuboid{
-    pub fn new(size: Vec3, color: Vec4, texture: Texture) -> Self{
+    pub fn new(size: Vec3, color: Vec4) -> Self{
         Self{
             size,
             color,
-            texture,
         }
     }
 
@@ -211,40 +215,41 @@ impl Cuboid{
         let z = half_size.z;
 
         let vertices = vec![
-            Vertex::new(vec3(-x, -y, z), self.color, vec2(0.0, 0.0)),    // 0
-            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 0.0)),     // 1
-            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0)),      // 2
-            Vertex::new(vec3(-x, y, z), self.color, vec2(0.0, 1.0)),     // 3
+            // Front face
+            Vertex::new(vec3(-x, -y, z), self.color, vec2(0.0, 0.0), vec3(0.0, 0.0, 1.0)),    // 0
+            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 0.0), vec3(0.0, 0.0, 1.0)),     // 1
+            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0), vec3(0.0, 0.0, 1.0)),      // 2
+            Vertex::new(vec3(-x, y, z), self.color, vec2(0.0, 1.0), vec3(0.0, 0.0, 1.0)),     // 3
 
             // Back face
-            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0)),   // 4
-            Vertex::new(vec3(x, -y, -z), self.color, vec2(1.0, 0.0)),    // 5
-            Vertex::new(vec3(x, y, -z), self.color, vec2(1.0, 1.0)),     // 6
-            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 1.0)),    // 7
+            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0), vec3(0.0, 0.0, -1.0)),   // 4
+            Vertex::new(vec3(x, -y, -z), self.color, vec2(1.0, 0.0), vec3(0.0, 0.0, -1.0)),    // 5
+            Vertex::new(vec3(x, y, -z), self.color, vec2(1.0, 1.0), vec3(0.0, 0.0, -1.0)),     // 6
+            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 1.0), vec3(0.0, 0.0, -1.0)),    // 7
 
             // Left face
-            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0)),   // 8
-            Vertex::new(vec3(-x, -y, z), self.color, vec2(1.0, 0.0)),    // 9
-            Vertex::new(vec3(-x, y, z), self.color, vec2(1.0, 1.0)),     // 10
-            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 1.0)),    // 11
+            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0), vec3(-1.0, 0.0, 0.0)),   // 8
+            Vertex::new(vec3(-x, -y, z), self.color, vec2(1.0, 0.0), vec3(-1.0, 0.0, 0.0)),    // 9
+            Vertex::new(vec3(-x, y, z), self.color, vec2(1.0, 1.0), vec3(-1.0, 0.0, 0.0)),     // 10
+            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 1.0), vec3(-1.0, 0.0, 0.0)),    // 11
 
             // Right face
-            Vertex::new(vec3(x, -y, -z), self.color, vec2(0.0, 0.0)),    // 12
-            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 0.0)),     // 13
-            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0)),      // 14
-            Vertex::new(vec3(x, y, -z), self.color, vec2(0.0, 1.0)),     // 15
+            Vertex::new(vec3(x, -y, -z), self.color, vec2(0.0, 0.0), vec3(1.0, 0.0, 0.0)),    // 12
+            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 0.0), vec3(1.0, 0.0, 0.0)),     // 13
+            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0), vec3(1.0, 0.0, 0.0)),      // 14
+            Vertex::new(vec3(x, y, -z), self.color, vec2(0.0, 1.0), vec3(1.0, 0.0, 0.0)),     // 15
 
             // Top face
-            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 0.0)),    // 16
-            Vertex::new(vec3(x, y, -z), self.color, vec2(1.0, 0.0)),     // 17
-            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0)),      // 18
-            Vertex::new(vec3(-x, y, z), self.color, vec2(0.0, 1.0)),     // 19
+            Vertex::new(vec3(-x, y, -z), self.color, vec2(0.0, 0.0), vec3(0.0, 1.0, 0.0)),    // 16
+            Vertex::new(vec3(x, y, -z), self.color, vec2(1.0, 0.0), vec3(0.0, 1.0, 0.0)),     // 17
+            Vertex::new(vec3(x, y, z), self.color, vec2(1.0, 1.0), vec3(0.0, 1.0, 0.0)),      // 18
+            Vertex::new(vec3(-x, y, z), self.color, vec2(0.0, 1.0), vec3(0.0, 1.0, 0.0)),     // 19
 
             // Bottom face
-            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0)),   // 20
-            Vertex::new(vec3(x, -y, -z), self.color, vec2(1.0, 0.0)),    // 21
-            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 1.0)),     // 22
-            Vertex::new(vec3(-x, -y, z), self.color, vec2(0.0, 1.0)),    // 23
+            Vertex::new(vec3(-x, -y, -z), self.color, vec2(0.0, 0.0), vec3(0.0, -1.0, 0.0)),   // 20
+            Vertex::new(vec3(x, -y, -z), self.color, vec2(1.0, 0.0), vec3(0.0, -1.0, 0.0)),    // 21
+            Vertex::new(vec3(x, -y, z), self.color, vec2(1.0, 1.0), vec3(0.0, -1.0, 0.0)),     // 22
+            Vertex::new(vec3(-x, -y, z), self.color, vec2(0.0, 1.0), vec3(0.0, -1.0, 0.0)),    // 23
         ];
 
         let indices = vec![
@@ -273,7 +278,7 @@ impl Cuboid{
             22, 23, 20, // Triangle 12
         ];
         
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices)
     }
 }
 
@@ -281,11 +286,10 @@ pub struct Sphere{
     pub iterations: i32,
     pub radius: f32,
     pub color: Vec4,
-    pub texture: Texture,
 }
 
 impl Sphere {
-    pub fn new(iterations: i32, radius: f32, color: Vec4, texture: Texture) -> Self{
+    pub fn new(iterations: i32, radius: f32, color: Vec4) -> Self{
         let mut fixed_iterations = iterations;
         if iterations <= 3{
             fixed_iterations = 4;
@@ -295,7 +299,6 @@ impl Sphere {
             iterations: fixed_iterations,
             radius,
             color,
-            texture,
         }
     }
 
@@ -321,7 +324,9 @@ impl Sphere {
                 let s = lon as f32 / self.iterations as f32;
                 let t = 1.0 - (lat as f32 / self.iterations as f32);
 
-                vertices.push(Vertex::new(vec3(x, y, z), self.color, vec2(s, t)));
+                let normal = vec3(x, y, z).normalize();
+
+                vertices.push(Vertex::new(vec3(x, y, z), self.color, vec2(s, t), normal));
             }
         }
 
@@ -341,6 +346,6 @@ impl Sphere {
             }
         }
 
-        Mesh::new(&vertices, &indices, self.texture.clone())
+        Mesh::new(&vertices, &indices)
     }
 }

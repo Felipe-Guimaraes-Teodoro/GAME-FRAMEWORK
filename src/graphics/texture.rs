@@ -1,8 +1,10 @@
+use std::{path::PathBuf, rc::Rc};
+
 use gl::types::{GLint, GLsizei, GLuint, GLvoid};
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum Texture{
-    Path(String),
+    Path(&'static str),
     Loaded(GLuint),
     None,
 }

@@ -124,8 +124,7 @@ impl Camera {
             self.pos += speed * self.dt * self.front.cross(self.up).normalize(); 
         }
 
-        let (w, h) = window.get_framebuffer_size();
-        self.proj = Mat4::perspective_rh_gl(70.0f32.to_radians(), w as f32 / h as f32, 0.0001, 1000.0);
+        self.proj = Mat4::perspective_rh_gl(70.0f32.to_radians(), 1.0, 0.0001, 1000.0);
     }
 
     pub fn mouse_callback(

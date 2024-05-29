@@ -16,7 +16,7 @@ pub struct EventLoop {
     pub event_handler: EventHandler,
     pub window: PWindow,
     pub ui: Imgui,
-    pub glfw: Glfw,
+    glfw: Glfw,
     events: GlfwReceiver<(f64, WindowEvent)>,
     pub now: Instant,
     pub dt: f32,
@@ -75,7 +75,7 @@ impl EventLoop {
     
         self.glfw.poll_events();
 
-        self.event_handler.update();
+        self.event_handler.scroll = Vec2::ZERO;
 
         for (_, event) in glfw::flush_messages(&self.events) {
             match event {

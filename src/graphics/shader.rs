@@ -65,6 +65,10 @@ impl Shader {
     pub unsafe fn uniform_1f(&self, name: &CStr, val: f32) {
         Uniform1f(GetUniformLocation(self.id, name.as_ptr()), val);
     }
+    pub unsafe fn uniform_1i(&self, name: &CStr, val: i32) {
+        Uniform1i(
+            GetUniformLocation(self.id, name.as_ptr()), val);
+    }
 
     pub unsafe fn uniform_mat4fv(&self, name: &CStr, mat: &[f32; 16]) {
         UniformMatrix4fv(
