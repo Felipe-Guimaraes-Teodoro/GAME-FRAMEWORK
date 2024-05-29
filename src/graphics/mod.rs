@@ -9,6 +9,7 @@ mod instance_mesh;
 mod texture;
 mod shader_types;
 mod light;
+mod font;
 
 pub use shader_types::*;
 pub use texture::*;
@@ -21,3 +22,4 @@ pub use SHADERS::*;
 pub use r#macro::*;
 pub use instance_mesh::*;
 pub use light::*;
+pub use font::*;

@@ -254,28 +254,17 @@ impl Cuboid{
 
         let indices = vec![
             // Front face
-            0, 1, 2,    // Triangle 1
-            2, 3, 0,    // Triangle 2
-
+            0, 3, 2, 2, 1, 0,
             // Back face
-            4, 5, 6,    // Triangle 3
-            6, 7, 4,    // Triangle 4
-
+            4, 5, 6, 6, 7, 4,
             // Left face
-            8, 9, 10,   // Triangle 5
-            10, 11, 8,  // Triangle 6
-
+            8, 11, 10, 10, 9, 8,
             // Right face
-            12, 13, 14, // Triangle 7
-            14, 15, 12, // Triangle 8
-
+            12, 13, 14, 14, 15, 12,
             // Top face
-            16, 17, 18, // Triangle 9
-            18, 19, 16, // Triangle 10
-
+            16, 17, 18, 18, 19, 16,
             // Bottom face
-            20, 21, 22, // Triangle 11
-            22, 23, 20, // Triangle 12
+            20, 23, 22, 22, 21, 20
         ];
         
         Mesh::new(&vertices, &indices)

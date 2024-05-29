@@ -50,7 +50,7 @@ struct Character {
     advance: u32,
 }
 
-struct Font {
+pub struct Font {
     VBO: u32,
     VAO: u32,
     characters: HashMap<char, Character>,
@@ -61,33 +61,24 @@ impl Font {
         let (mut VBO, mut VAO) = (0, 0);
         let mut characters: HashMap<char, Character> = HashMap::new();
 
-        unsafe {
-            Enable(CULL_FACE);
-            Enable(BLEND);
-            BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-                        
-            Enable(BLEND);
-            BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);  
-        }
+        gl::Enable(gl::CULL_FACE);
+        gl::Enable(gl::BLEND);
+        gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
 
         let projection = Mat4::orthographic_rh_gl(0.0, width, 0.0, height, -100.0, 100.0);
-        unsafe {
-            TEXT_SHADER.use_shader();
-            TEXT_SHADER.uniform_mat4fv(cstr!("projection"), &projection.to_cols_array());
-            UseProgram(0);
-        }
+        TEXT_SHADER.use_shader();
+        TEXT_SHADER.uniform_mat4fv(cstr!("projection"), &projection.to_cols_array());
+        gl::UseProgram(0);
 
-        let ft = ft::Library::init().unwrap();
-
-        let mut face = ft.new_face(path, 0).unwrap();
-
+        let ft = ft::Library::init().expect("Failed to initialize FreeType library");
+        let mut face = ft.new_face(path, 0).expect("Failed to load font face");
         FT_Set_Pixel_Sizes(face.raw_mut(), 0, 48);
-
         gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
 
-        for i in 0..128 {
-            if  FT_Load_Char(face.raw_mut(), i, FT_LOAD_RENDER) == 1 {
-                println!("failed to load glypth");
+        for c in 0..128u8 {
+            if FT_Load_Char(face.raw_mut(), c as u32, FT_LOAD_RENDER) != 0 {
+                eprintln!("Failed to load glyph for character {}", c);
+                continue;
             }
             
             let mut texture = 0;
@@ -102,9 +93,9 @@ impl Font {
                 0,
                 gl::RED,
                 gl::UNSIGNED_BYTE,
-                face.glyph().bitmap().buffer().as_ptr() as *const std::ffi::c_void,
+                face.glyph().bitmap().buffer().as_ptr() as *const c_void,
             );
-
+            
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
@@ -116,27 +107,30 @@ impl Font {
                 bearing: (face.glyph().bitmap_left(), face.glyph().bitmap_top()),
                 advance: face.glyph().advance().x as u32,
             };
-            characters.insert(char::from_u32(i).unwrap(), character);
+            characters.insert(c as char, character);
         }
-        FT_Done_Face(face.raw_mut());
-        FT_Done_FreeType(ft.raw());
-
+        
+        // clean freetype resources (for some reason this causes heap corruption)
+        //FT_Done_Face(face.raw_mut());
+        //FT_Done_FreeType(ft.raw());
+        
         gl::GenVertexArrays(1, &mut VAO);
         gl::GenBuffers(1, &mut VBO);
         gl::BindVertexArray(VAO);
-        gl::BindBuffer(ARRAY_BUFFER, VBO);
-        gl::BufferData(ARRAY_BUFFER, (std::mem::size_of::<f32>() * 6 * 4) as isize, std::ptr::null(), gl::DYNAMIC_DRAW);
+        gl::BindBuffer(gl::ARRAY_BUFFER, VBO);
+        gl::BufferData(gl::ARRAY_BUFFER, (std::mem::size_of::<f32>() * 6 * 4) as isize, std::ptr::null(), gl::DYNAMIC_DRAW);
         gl::EnableVertexAttribArray(0);
-        gl::VertexAttribPointer(0, 4, FLOAT, FALSE as gl::types::GLboolean, (4 * std::mem::size_of::<f32>()) as GLsizei, std::ptr::null());
-        gl::BindBuffer(ARRAY_BUFFER, 0);
+        gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE as gl::types::GLboolean, (4 * std::mem::size_of::<f32>()) as GLsizei, std::ptr::null());
+        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         gl::BindVertexArray(0);
 
         Self {
-            VBO, 
+            VBO,
             VAO,
             characters,
         }
     }
+
     pub fn render_text(&mut self, text: &str, mut x: f32, y: f32, scale: f32, color: Vec3) {
         unsafe {
             TEXT_SHADER.use_shader();
@@ -144,35 +138,40 @@ impl Font {
             gl::ActiveTexture(gl::TEXTURE0);
             gl::BindVertexArray(self.VAO);
             
-            for i in 0..self.characters.len() {
-                let mut ch = self.characters.get(&char::from_u32(i as u32).unwrap()).unwrap();
-                
-                let xpos = x + ch.bearing.0 as f32 * scale;
-                let ypos = y - (ch.size.1 - ch.bearing.1) as f32 * scale;
-                
-                let w = ch.size.0 as f32 * scale;
-                let h = ch.size.1 as f32 * scale;
-                
-                let vertices =  vec![
-                    [xpos, ypos + h, 0.0, 0.0],
-                    [xpos, ypos, 0.0, 0.0],
-                    [xpos + w, ypos, 1.0, 1.0],
+            for c in text.chars() {
+                if let Some(ch) = self.characters.get(&c) {
+                    let xpos = x + ch.bearing.0 as f32 * scale;
+                    let ypos = y - (ch.size.1 - ch.bearing.1) as f32 * scale;
                     
-                    [xpos, ypos + h, 0.0, 0.0],
-                    [xpos + w, ypos, 1.0, 1.0],
-                    [xpos + w, ypos + h, 1.0, 0.0],
-                ];
+                    let w = ch.size.0 as f32 * scale;
+                    let h = ch.size.1 as f32 * scale;
                     
-                gl::BindTexture(gl::TEXTURE_2D, ch.texture);
-                gl::BindBuffer(gl::ARRAY_BUFFER, self.VBO);
-                gl::BufferSubData(gl::ARRAY_BUFFER, 0, std::mem::size_of::<Vec<[f32; 4]>>() as isize, vertices.as_ptr() as *const gl::types::GLvoid);
-                gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-
-                gl::DrawArrays(gl::TRIANGLES, 0, 6);
-
-                x += ((ch.advance >> 6) * scale as u32) as f32;
+                    let vertices: [f32; 6 * 4] = [
+                        xpos + w, ypos, 1.0, 1.0,
+                        xpos, ypos, 0.0, 1.0,
+                        xpos, ypos + h, 0.0, 0.0,
+    
+                        xpos + w, ypos + h, 1.0, 0.0,
+                        xpos + w, ypos, 1.0, 1.0,
+                        xpos, ypos + h, 0.0, 0.0,
+                    ];
+                        
+                    gl::BindTexture(gl::TEXTURE_2D, ch.texture);
+                    gl::BindBuffer(gl::ARRAY_BUFFER, self.VBO);
+                    gl::BufferSubData(
+                        gl::ARRAY_BUFFER,
+                        0,
+                        (vertices.len() * std::mem::size_of::<f32>()) as isize,
+                        vertices.as_ptr() as *const gl::types::GLvoid,
+                    );
+                    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    
+                    gl::DrawArrays(gl::TRIANGLES, 0, 6);
+    
+                    x += (ch.advance >> 6) as f32 * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+                }
             }
-
+    
             gl::BindVertexArray(0);
             gl::BindTexture(gl::TEXTURE_2D, 0);
         }

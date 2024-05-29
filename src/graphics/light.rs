@@ -28,6 +28,13 @@ impl Renderer {
 
     pub fn add_light(&mut self, name: &str, light: Light) {
         self.lights.insert(name.to_string(), light);
+    }
 
+    pub fn get_light(&mut self, name: &str) -> Option<&Light> {
+        self.lights.get(name)
+    }
+
+    pub fn get_light_mut(&mut self, name: &str) -> Option<&mut Light> {
+        self.lights.get_mut(name)
     }
 }
