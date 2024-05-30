@@ -21,7 +21,7 @@ pub static FULL_SHADER: Lazy<Shader> = Lazy::new(|| {
     Shader::new_pipeline(FULL_SHADER_VS, FULL_SHADER_FS)
 });
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u32>,

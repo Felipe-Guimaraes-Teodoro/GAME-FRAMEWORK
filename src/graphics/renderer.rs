@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::CString};
 use gl::UseProgram;
 use glam::{vec3, Vec2, Vec3, Vec4};
 
-use crate::{cstr, load_texture, Camera, EventLoop, InstanceMesh, Light, Shader, Texture, DEFAULT_SHADER, FULL_SHADER, INSTANCE_SHADER, LIGHT_SHADER};
+use crate::{cstr, load_texture, Camera, EventLoop, InstanceMesh, Light, Model, Shader, Texture, DEFAULT_SHADER, FULL_SHADER, INSTANCE_SHADER, LIGHT_SHADER};
 
 use super::Mesh;
 
@@ -27,6 +27,7 @@ impl Vertex {
 }
 
 pub struct Renderer {
+    pub models: HashMap<String, Model>,
     pub meshes: HashMap<String, Mesh>,
     pub instance_meshes: HashMap<String, InstanceMesh>,
     pub lights: HashMap<String, Light>,
@@ -40,6 +41,7 @@ impl Renderer {
         camera.set_projection(crate::ProjectionType::Orthographic);
 
         Self {
+            models: HashMap::new(),
             meshes: HashMap::new(),
             instance_meshes: HashMap::new(),
             lights: HashMap::new(),
@@ -75,6 +77,10 @@ impl Renderer {
         
         for value in &self.meshes {
             value.1.draw(&el);
+        }
+
+        for model in &self.models {
+            model.1.draw(&el);
         }
     }
 }

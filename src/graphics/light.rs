@@ -30,7 +30,7 @@ impl Renderer {
         self.lights.insert(name.to_string(), light);
     }
 
-    pub fn get_light(&mut self, name: &str) -> Option<&Light> {
+    pub fn get_light(&self, name: &str) -> Option<&Light> {
         self.lights.get(name)
     }
 

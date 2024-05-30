@@ -16,5 +16,10 @@ pub fn renderer_inspector(renderer: &mut Renderer, frame: &mut Ui) {
             frame.text(txt);
         }
 
+        for model in &renderer.models {
+            let txt = format!("Model: M: {:?}", model.0);
+            frame.text(txt);
+        }
+
     });
 }

@@ -29,7 +29,7 @@ fn main() {
     let roblux_tex = Texture::Path("examples/assets/images/hqdefault.jpg".into());
     let mut c = Cuboid::new(vec3(200., 200., 200.), vec4(1.0, 0.0, 0.0, 1.0)).mesh();
     c.set_shader_type(&ShaderType::Full);
-    c.set_texture(cobble_tex);
+    c.set_texture(cobble_tex.clone());
     c.setup_mesh();
     renderer.add_mesh("c", c).unwrap();
 
@@ -51,6 +51,10 @@ fn main() {
     t.scale(vec3(20.0, 20.0, 20.0));
     renderer.add_mesh("t", t).unwrap();
 
+    let mut suzanne = tiny_game_framework::Model::new("examples/assets/models/suzanne.obj");
+    suzanne.meshes[0].set_shader_type(&ShaderType::Full);
+    renderer.add_model("suzanne", suzanne);
+
     renderer.add_light("light1", Light {position: vec3(100000.0, 100000.0, 100000.0), color: vec3(0.0, 0.0, 1.0)});
     renderer.add_light("light2", Light {position: vec3(-100000.0, 100000.0, 100000.0), color: vec3(0.0, 1.0, 0.0)});
     renderer.add_light("light3", Light {position: vec3(-100000.0, 100000.0, -100000.0), color: vec3(1.0, 0.0, 0.0)});
@@ -64,6 +68,7 @@ fn main() {
     let mut frames = vec![];
     let mut fullscreen = false;
 
+    let mut dist = 0.0;
     while !el.window.should_close() {
         el.update();
 
@@ -99,7 +104,7 @@ fn main() {
             frame.text("TGF © FEROMONEO && GOUD \n\nbuild LATEST ~.134");
             frame.separator();
             frame.text(format!("camera_pos: {:.1} \ncamera_rot: {:?}", &renderer.camera.pos, (&renderer.camera.pitch, &renderer.camera.yaw)));
-            frame.slider("timescale", -10.0, 10.0, &mut el.timescale);
+            frame.slider("timescale", -50.0, 50.0, &mut el.timescale);
             if frame.button("set timescale = 1.0") {
                 el.timescale = 1.0;
             }
@@ -124,7 +129,27 @@ fn main() {
 
         is_set_fullscreen(&mut el, &mut fullscreen);
 
-        unsafe {
+        let l1 = renderer.get_light_mut("light1").unwrap();
+        l1.position = vec3(el.time.cos() * 10000.0, el.time.sin() * 10000.0, 10000.0);
+
+        let l2 = renderer.get_light_mut("light2").unwrap();
+        l2.position = vec3(10000.0, el.time.sin() * 10000.0, el.time.cos() * 10000.0);
+
+        let l3 = renderer.get_light_mut("light3").unwrap();
+        l3.position = vec3(el.time.sin() * 10000.0, el.time.cos() * 10000.0, 10000.0);
+
+
+        let direction = renderer.camera.front;
+        let right = direction.cross(vec3(0.0, 1.0, 0.0));
+        let mut suzanne = renderer.get_model_mut("suzanne").unwrap();
+        dist += el.event_handler.scroll.y;
+        let mut s = &mut suzanne.meshes[0];
+        let goal = cam_pos + direction * dist * 10.0 + right * 200.0;
+        s.position.x = lerp(s.position.x, goal.x, 0.25);
+        s.position.y = lerp(s.position.y, goal.y, 0.25);
+        s.position.z = lerp(s.position.z, goal.z, 0.25);
+
+        unsafe { 
             if el.is_key_down(Key::F1) {
                 PolygonMode(FRONT, LINE);
             } else {
@@ -170,4 +195,15 @@ fn is_set_fullscreen(el: &mut EventLoop, fullscreen: &mut bool) {
         }
         *fullscreen = !*fullscreen;
     }
+}
+
+fn pitch_yaw_to_direction(pitch: f32, yaw: f32) -> Vec3 {
+    let pitch_rad = pitch.to_radians();
+    let yaw_rad = yaw.to_radians();
+
+    vec3(
+        yaw_rad.cos() * pitch_rad.cos(),
+        pitch_rad.sin(),
+        yaw_rad.sin() * pitch_rad.cos(),
+    )
 }

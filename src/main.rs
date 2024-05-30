@@ -29,11 +29,11 @@ fn main() {
     let roblux_tex = Texture::Path("examples/assets/images/hqdefault.jpg".into());
     let mut c = Cuboid::new(vec3(200., 200., 200.), vec4(1.0, 0.0, 0.0, 1.0)).mesh();
     c.set_shader_type(&ShaderType::Full);
-    c.set_texture(cobble_tex);
+    c.set_texture(cobble_tex.clone());
     c.setup_mesh();
     renderer.add_mesh("c", c).unwrap();
 
-    let mut s = Sphere::new(32, 500., Vec4::ONE).mesh();
+    let mut s = Sphere::new(128, 500., Vec4::ONE).mesh();
     s.set_shader_type(&ShaderType::Full);
     s.set_texture(cobble_tex);
     s.setup_mesh();
@@ -99,7 +99,7 @@ fn main() {
             frame.text("TGF © FEROMONEO && GOUD \n\nbuild LATEST ~.134");
             frame.separator();
             frame.text(format!("camera_pos: {:.1} \ncamera_rot: {:?}", &renderer.camera.pos, (&renderer.camera.pitch, &renderer.camera.yaw)));
-            frame.slider("timescale", -30.0, 30.0, &mut el.timescale);
+            frame.slider("timescale", -50.0, 50.0, &mut el.timescale);
             if frame.button("set timescale = 1.0") {
                 el.timescale = 1.0;
             }
