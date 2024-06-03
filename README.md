@@ -1,5 +1,8 @@
 # Rust Game Framework
 
+Warning: this version is unchecked and - most likely - messed up.
+Future updates ***SHALL*** fix this.
+
 ## Will eventually contain:
   * Utility for rendering (todo)
   * ECS (todo)

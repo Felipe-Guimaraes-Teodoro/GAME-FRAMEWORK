@@ -111,6 +111,7 @@ fn main() {
             if frame.button("set timescale = 0.0") {
                 el.timescale = 0.0;
             }
+            frame.slider("speed", 0.0, 100.0, &mut renderer.camera.speed);
 
             frame.window("graph(f × time)").build(|| {
                 frames.push(1.0 / el.dt);
