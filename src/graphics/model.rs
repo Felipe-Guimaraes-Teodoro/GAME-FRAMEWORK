@@ -97,17 +97,17 @@ impl Model {
 
             let mut final_mesh = Mesh::new(&vertices, &indices);
 
-            if let Ok(ref materials) = materials {
-                if let Some(material_id) = mesh.material_id {
-                    let material = &materials[material_id];
+            // if let Ok(ref materials) = materials {
+            //     if let Some(material_id) = mesh.material_id {
+            //         let material = &materials[material_id];
 
-                    // diffuse map
-                    if let Some(diffuse_texture) = &material.diffuse_texture {
-                        let texture = self.load_texture(diffuse_texture);
-                        final_mesh.set_texture(texture);
-                    }
-                }
-            }
+            //         // diffuse map
+            //         if let Some(diffuse_texture) = &material.diffuse_texture {
+            //             let texture = self.load_texture(diffuse_texture);
+            //             final_mesh.set_texture(texture);
+            //         }
+            //     }
+            // }
 
             for face in &mut final_mesh.indices.chunks_mut(6) {
                 face.reverse();

@@ -1,12 +1,10 @@
-use std::path::Path;
-
 use gl::{CullFace, DepthFunc, Enable, FrontFace, PolygonMode, BACK, CULL_FACE, CW, DEPTH_BUFFER_BIT, DEPTH_TEST, FILL, FRONT, LESS, LINE};
 use glam::{Quat, Vec3};
 use glfw::Key;
 use imgui::ImColor32;
 use tiny_game_framework::gl::{Clear, COLOR_BUFFER_BIT};
 use tiny_game_framework::glam::{vec2, vec3, vec4, Vec4};
-use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, renderer_inspector, Cuboid, EventLoop, Font, InstanceData, Light, Line, ShaderType, Sphere, Texture};
+use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, renderer_inspector, Cuboid, EventLoop, Font, InstanceData, Light, ShaderType, Sphere, Texture};
 use tiny_game_framework::Renderer;
 
 fn main() {
@@ -25,24 +23,28 @@ fn main() {
     }
 
     
-    let cobble_tex = Texture::Path("examples/assets/images/cobble_tex.png".into());
-    let roblux_tex = Texture::Path("examples/assets/images/hqdefault.jpg".into());
+    let cobble_tex = "examples/assets/images/cobble_tex.png";
+    let roblux_tex = "examples/assets/images/hqdefault.jpg";
+
+    renderer.add_texture("cobble".to_owned(), cobble_tex.to_owned());
+    renderer.add_texture("roblux".to_owned(), roblux_tex.to_owned());
+
     let mut c = Cuboid::new(vec3(200., 200., 200.), vec4(1.0, 0.0, 0.0, 1.0)).mesh();
     c.set_shader_type(&ShaderType::Full);
-    c.set_texture(cobble_tex.clone());
+    c.set_texture("cobble", &renderer);
     c.setup_mesh();
     renderer.add_mesh("c", c).unwrap();
 
     let mut s = Sphere::new(128, 500., Vec4::ONE).mesh();
     s.set_shader_type(&ShaderType::Full);
-    s.set_texture(cobble_tex);
+    s.set_texture("cobble", &renderer);
     s.setup_mesh();
     s.add_position(vec3(1500., 0., 0.));
     s.scale(vec3(20.0, 20.0, 20.0));
     renderer.add_mesh("s", s).unwrap();
 
     let mut t = Sphere::new(32, 10000., vec4(0.1, 0.2, 0.3, 1.0)).mesh();
-    t.set_texture(roblux_tex);
+    t.set_texture("roblux", &renderer);
     for face in t.indices.chunks_mut(6) {
         face.reverse();
     }
@@ -55,13 +57,8 @@ fn main() {
     renderer.add_light("light2", Light {position: vec3(-100000.0, 100000.0, 100000.0), color: vec3(0.0, 1.0, 0.0)});
     renderer.add_light("light3", Light {position: vec3(-100000.0, 100000.0, -100000.0), color: vec3(1.0, 0.0, 0.0)});
 
-    let mut font = unsafe {
-        Font::init(800.0, 800.0, "examples/assets/fonts/comic.ttf")
-    };
 
     renderer.camera.speed = 0.5;
-
-    let mut frames = vec![];
     let mut fullscreen = false;
 
     while !el.window.should_close() {
@@ -87,42 +84,16 @@ fn main() {
         let t = renderer.get_mesh_mut("t").unwrap();
         t.position = cam_pos;
 
-        let frame = el.ui.frame(&mut el.window);
-
-        { // ui shenanigans
-            let blnk = (rand_betw(0, 100) as f32 * 0.4) as u8;
-            frame.get_foreground_draw_list().add_text([0.0, 0.0], ImColor32::from_rgb(42 + blnk, 126 + blnk, 200 + blnk), "HELLO, WORLD!");
-            // frame.show_demo_window(&mut true);
-            frame.menu_item_config(format!("f: {:.2} | dt(ms): {:.2}", 1.0/el.dt, el.dt*1000.0)).build();
-            frame.text(format!("t: {:.1}", el.time));
-            frame.separator();
-            frame.text("TGF © FEROMONEO && GOUD \n\nbuild LATEST ~.134");
-            frame.separator();
-            frame.text(format!("camera_pos: {:.1} \ncamera_rot: {:?}", &renderer.camera.pos, (&renderer.camera.pitch, &renderer.camera.yaw)));
-            frame.slider("timescale", -50.0, 50.0, &mut el.timescale);
-            if frame.button("set timescale = 1.0") {
-                el.timescale = 1.0;
-            }
-            if frame.button("set timescale = 0.0") {
-                el.timescale = 0.0;
-            }
-
-            frame.window("graph(f × time)").build(|| {
-                frames.push(1.0 / el.dt);
-                frame.plot_lines(" ", &frames).graph_size([256.0, 64.0]).build();
-                if frames.len() > 256 { frames.remove(0); }
-            });
-
-            renderer_inspector(&mut renderer, frame);
-        }
-
         if el.is_key_down(Key::LeftAlt) {
             el.window.set_cursor_mode(glfw::CursorMode::Normal);
         } else {
             el.window.set_cursor_mode(glfw::CursorMode::Disabled);
         }
 
-        is_set_fullscreen(&mut el, &mut fullscreen);
+        if el.is_key_down(Key::F11){
+            el.set_fullscreen(&fullscreen);
+            fullscreen = !fullscreen;
+        }
 
         let l1 = renderer.get_light_mut("light1").unwrap();
         l1.position = vec3(el.time.cos() * 10000.0, el.time.sin() * 10000.0, 10000.0);
@@ -141,42 +112,6 @@ fn main() {
             }
             Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
             renderer.draw(&el);
-            el.ui.draw();
-            font.render_text("hiiiii", 10.0, 10.0, 1.0, vec3(1.0, 1.0, 1.0));
         }
-    }
-}
-
-
-fn is_set_fullscreen(el: &mut EventLoop, fullscreen: &mut bool) {
-    if el.event_handler.key_just_pressed(Key::F11) {
-        if !*fullscreen {
-            el.glfw.with_primary_monitor(|glfw, monitor| {
-                let monitor = monitor.unwrap();
-                let mode = monitor.get_video_mode().unwrap();
-                el.window.set_monitor(
-                    glfw::WindowMode::FullScreen(&monitor), 
-                    0, 
-                    0, 
-                    mode.width, 
-                    mode.height, 
-                    Some(mode.refresh_rate),
-                );
-            });
-        } else {
-            el.glfw.with_primary_monitor(|glfw, monitor| {
-                let monitor = monitor.unwrap();
-                let mode = monitor.get_video_mode().unwrap();
-                el.window.set_monitor(
-                    glfw::WindowMode::Windowed, 
-                    200, 
-                    200, 
-                    800, 
-                    800, 
-                    Some(mode.refresh_rate),
-                );
-            });
-        }
-        *fullscreen = !*fullscreen;
     }
 }

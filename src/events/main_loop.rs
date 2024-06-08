@@ -163,4 +163,35 @@ impl EventLoop {
         }
     }
 
+    pub fn set_fullscreen(&mut self, fullscreen: &bool) {
+        if self.event_handler.key_just_pressed(Key::F11) {
+            if !fullscreen {
+                self.glfw.with_primary_monitor(|_, monitor| {
+                    let monitor = monitor.unwrap();
+                    let mode = monitor.get_video_mode().unwrap();
+                    self.window.set_monitor(
+                        glfw::WindowMode::FullScreen(&monitor), 
+                        0, 
+                        0, 
+                        mode.width, 
+                        mode.height, 
+                        Some(mode.refresh_rate),
+                    );
+                });
+            } else {
+                self.glfw.with_primary_monitor(|_, monitor| {
+                    let monitor = monitor.unwrap();
+                    let mode = monitor.get_video_mode().unwrap();
+                    self.window.set_monitor(
+                        glfw::WindowMode::Windowed, 
+                        200, 
+                        200, 
+                        800, 
+                        800, 
+                        Some(mode.refresh_rate),
+                    );
+                });
+            }
+        }
+    }
 }

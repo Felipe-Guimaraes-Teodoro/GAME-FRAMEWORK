@@ -34,7 +34,7 @@ pub struct Mesh {
     pub rotation: Quat,
     pub scale: Vec3,
 
-    pub texture: Texture,
+    pub texture: u32,
     shader: Shader,
 }
 
@@ -46,7 +46,7 @@ impl Mesh {
             position: Vec3::ZERO,
             rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
             scale: Vec3::ONE,
-            texture: Texture::None,
+            texture: 0,
             shader: *DEFAULT_SHADER,
         };
 
@@ -71,8 +71,8 @@ impl Mesh {
         self.shader = shader;
     }
 
-    pub fn set_texture(&mut self, texture: Texture) {
-        self.texture = texture;
+    pub fn set_texture(&mut self, texture_name: &str, renderer: &Renderer) {
+        self.texture = renderer.get_texture(texture_name.to_owned());
         unsafe {
             self.shader.uniform_1i(cstr!("has_texture"), 1);
         }
@@ -114,16 +114,7 @@ impl Mesh {
             bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
             gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4, 2 => tex_coords: 2, 3 => normal: 3);
     
-            if let Texture::Path(ref path) = self.texture {
-                self.texture = Texture::Loaded(load_texture(path));
-                // Bind the texture if it is loaded
-                if let Texture::Loaded(texture_id) = self.texture {
-                    gl::BindTexture(gl::TEXTURE_2D, texture_id);
-                }
-            }
-            else{
-                self.texture = Texture::Loaded(0);
-            }
+            gl::BindTexture(gl::TEXTURE_2D, self.texture);
 
             BindVertexArray(0);
         }
@@ -148,9 +139,8 @@ impl Mesh {
         // Set uniforms and draw
         self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
         self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
-        if let Texture::Loaded(texture_id) = self.texture {
-            BindTexture(TEXTURE_2D, texture_id);
-        }
+        
+        BindTexture(TEXTURE_2D, self.texture);
 
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
 
