@@ -1,12 +1,12 @@
-use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
+use std::ptr;
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, load_texture, Camera, InstanceData, InstanceMesh, ShaderType, Texture, FULL_SHADER_FS, FULL_SHADER_VS, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, InstanceData, InstanceMesh, ShaderType, FULL_SHADER_FS, FULL_SHADER_VS, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
 use gl::{*, types::GLsizei};
-use glam::{vec3, Mat4, Quat, Vec3};
+use glam::{Mat4, Quat, Vec3, Vec4};
 use once_cell::sync::Lazy;
 
 pub static DEFAULT_SHADER: Lazy<Shader> = Lazy::new(|| {
@@ -36,6 +36,8 @@ pub struct Mesh {
 
     pub texture: u32,
     shader: Shader,
+    pub parent: Option<Box<Mesh>>,
+    pub children: Vec<Box<Mesh>>,
 }
 
 impl Mesh {
@@ -48,6 +50,8 @@ impl Mesh {
             scale: Vec3::ONE,
             texture: 0,
             shader: *DEFAULT_SHADER,
+            parent: None,
+            children: Vec::new(),
         };
 
         mesh
@@ -90,16 +94,61 @@ impl Mesh {
         new_mesh
     }
 
+    pub fn set_parent(&mut self, parent: Mesh){
+        self.parent = Some(Box::new(parent));
+    }
+
+    pub fn add_child(&mut self, mut child: Mesh){
+        child.set_parent(self.clone());
+        self.children.push(Box::new(child));
+    }
+
+    pub fn set_color(&mut self, color: Vec4){
+        for vert in self.vertices.iter_mut(){
+            vert.color = color;
+        }
+    }
+
     pub fn set_position(&mut self, position: Vec3){
         self.position = position;
+        for child in self.children.as_mut_slice(){
+            child.set_position(position + child.position)
+        }
     }
 
     pub fn add_position(&mut self, position: Vec3){
         self.position += position;
+        for child in self.children.as_mut_slice(){
+            child.add_position(position)
+        }
+    }
+
+    pub fn set_scale(&mut self, scale: Vec3){
+        self.scale = scale;
+        for child in self.children.as_mut_slice(){
+            child.set_scale(scale);
+        }
     }
 
     pub fn scale(&mut self, scale: Vec3){
         self.scale *= scale;
+        for child in self.children.as_mut_slice(){
+            child.scale(scale);
+        }
+    }
+
+    pub fn set_rotation(&mut self, rotation: Quat){
+        self.rotation = rotation;
+        for child in self.children.as_mut_slice(){
+            child.set_rotation(rotation);
+        }
+    }
+
+    pub fn rotate(&mut self, rotation: Quat){
+        self.rotation = self.rotation + rotation;
+        for child in self.children.as_mut_slice(){
+            child.rotate(rotation);
+        }
     }
 
     pub fn setup_mesh(&mut self) {

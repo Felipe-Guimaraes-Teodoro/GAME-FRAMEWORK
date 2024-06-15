@@ -163,6 +163,7 @@ impl EventLoop {
         }
     }
 
+    // TODO: Fix this for the love of gohf
     pub fn set_fullscreen(&mut self, fullscreen: &bool) {
         if self.event_handler.key_just_pressed(Key::F11) {
             if !fullscreen {
