@@ -1,51 +1,56 @@
-use gl::{Clear, ClearColor, CullFace, DepthFunc, Enable, FrontFace, PolygonMode, BACK, COLOR_BUFFER_BIT, CULL_FACE, CW, DEPTH_BUFFER_BIT, DEPTH_TEST, FILL, FRONT, LESS, LINE};
-use glam::{vec3, Vec3};
-use glfw::Key;
-use tiny_game_framework::{EventLoop, Light, Model, Renderer};
-use tiny_game_framework::glam::{Vec2, vec2};
+use tiny_game_framework::{gl::*, glam::{vec2, Vec3, Vec4, vec3, vec4, Quat}, Cuboid, EventLoop, Light, Renderer, ShaderType, Sphere};
+
+static GRAVITY: Vec3 = vec3(0., 0., 0.);
 
 fn main() {
-    let resolution = vec2(500., 500.);
+    let resolution = vec2(600., 600.);
+
     let mut el = EventLoop::new(resolution.x as u32, resolution.y as u32);
     let mut renderer = Renderer::new();
+    
+    el.window.set_cursor_mode(tiny_game_framework::glfw::CursorMode::Disabled);
 
     unsafe {
         Enable(DEPTH_TEST);
         DepthFunc(LESS);
-        Enable(CULL_FACE);
-        CullFace(BACK);
-        FrontFace(CW);
+        Enable(BLEND);
+        BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
     }
 
-    el.window.set_cursor_mode(glfw::CursorMode::Disabled);
+    //let texture = tiny_game_framework::Texture::Path("src/images/grass.jpeg".into()); // not &¨str. i want String Ü
+    
+    let light = Light { position: vec3(10.0, 2.0, 5.0), color: Vec3::ONE*5.};
+    renderer.add_light("l", light);
 
-    let suzanne = Model::new("examples/assets/models/suzanne.obj");
+    let size = 10;
+    let gap = 100;
+    let mut counter = 0;
+    for x in 0..size
+    {
+        for y in 0..size{
+            counter += 1;
 
-    renderer.add_model("suzanne", suzanne);
+            let mut plane = Cuboid::new(Vec3::ONE*gap as f32, Vec4::ONE).mesh();
+            plane.set_position(vec3(x as f32*gap as f32, 0., y as f32*gap as f32));
+            //plane.set_texture(texture.clone());
+            plane.set_shader_type(&ShaderType::Full);
 
-
-    // renderer.add_model("suzanne", model);
-    renderer.add_light("l1", Light {position: vec3(10.0, 10.0, 5.0), color: Vec3::ONE});
+            plane.setup_mesh();
+            renderer.add_mesh(&format!("floor - {}", counter), plane).unwrap();
+        }
+    }
 
     while !el.window.should_close() {
         el.update();
-
-        renderer.camera.input(&el.window, &el.window.glfw);
         renderer.camera.mouse_callback(el.event_handler.mouse_pos.x, el.event_handler.mouse_pos.y, &el.window);
-        renderer.camera.update(renderer.camera.pos);
-
-        let mut l = renderer.get_light_mut("l1").unwrap();
-        l.position = vec3(el.time.sin() * 100.0, el.time.cos() * 100.0, 0.0);
+        renderer.camera.input(&el.window, &el.window.glfw);
+        renderer.camera.update(renderer.camera.pos - GRAVITY*el.dt);
+        
+        //oooooooooouá la ui interface que morrestes nmutio brutalmente por goud deaudausl da sivla 🛹
 
         unsafe {
             Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
-            ClearColor(0.1, 0.2, 0.3, 1.0);
-
-            if el.is_key_down(Key::F1) {
-                PolygonMode(FRONT, LINE);
-            } else {
-                PolygonMode(FRONT, FILL);
-            }
+            ClearColor(0.6, 0.6, 1., 1.);
 
             renderer.draw(&el);
         }

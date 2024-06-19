@@ -2,7 +2,7 @@ extern crate glfw;
 
 use std::time::{self, Instant};
 
-use gl::Viewport;
+use gl::{BlendFunc, Enable, Viewport, BLEND, DEPTH_TEST, ONE_MINUS_SRC_ALPHA, SRC_ALPHA};
 use glam::{vec2, Vec2};
 use glfw::{fail_on_errors, Glfw, GlfwReceiver, PWindow, Window, WindowEvent};
 use glfw::{Action, Context, Key};
@@ -29,6 +29,12 @@ impl EventLoop {
     pub fn new(w: u32, h: u32) -> Self {
         let mut glfw = glfw::init(fail_on_errors!()).unwrap();
         
+        glfw.window_hint(glfw::WindowHint::TransparentFramebuffer(true));
+        unsafe {
+            BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+            Enable(BLEND | DEPTH_TEST);
+        }
+
         let (mut window, events) = glfw.create_window(w, h, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
     

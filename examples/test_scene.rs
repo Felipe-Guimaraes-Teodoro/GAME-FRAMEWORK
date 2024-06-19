@@ -90,7 +90,7 @@ fn main() {
         s.rotation = Quat::from_euler(glam::EulerRot::XYZ, 0.0, el.time / 20.0, 0.0);
 
         let t = renderer.get_mesh_mut("t").unwrap();
-        t.position = cam_pos;
+        // t.position = cam_pos;
 
         let frame = el.ui.frame(&mut el.window);
 
@@ -157,6 +157,7 @@ fn main() {
                 PolygonMode(FRONT, FILL);
             }
             Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+            
             renderer.draw(&el);
             el.ui.draw();
             font.render_text("hiiiii", 10.0, 10.0, 1.0, vec3(1.0, 1.0, 1.0));
