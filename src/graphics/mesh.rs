@@ -1,12 +1,12 @@
-use std::{ffi::c_void, mem::{offset_of, size_of}, ptr};
+use std::ptr;
 
-use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, load_texture, Camera, InstanceData, InstanceMesh, ShaderType, Texture, FULL_SHADER_FS, FULL_SHADER_VS, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
+use crate::{bind_buffer, cstr, events::EventLoop, gen_attrib_pointers, InstanceData, InstanceMesh, ShaderType, FULL_SHADER_FS, FULL_SHADER_VS, LIGHT_MESH_SHADER_FS, LIGHT_MESH_SHADER_VS};
 use std::ffi::CString;
 
 use super::{Renderer, Shader, Vertex, DEFAULT_MESH_SHADER_FS, DEFAULT_MESH_SHADER_VS};
 
 use gl::{*, types::GLsizei};
-use glam::{vec3, Mat4, Quat, Vec3};
+use glam::{Mat4, Quat, Vec3, Vec4};
 use once_cell::sync::Lazy;
 
 pub static DEFAULT_SHADER: Lazy<Shader> = Lazy::new(|| {
@@ -34,8 +34,10 @@ pub struct Mesh {
     pub rotation: Quat,
     pub scale: Vec3,
 
-    pub texture: Texture,
+    pub texture: u32,
     shader: Shader,
+    pub parent: Option<Box<Mesh>>,
+    pub children: Vec<Box<Mesh>>,
 }
 
 impl Mesh {
@@ -46,8 +48,10 @@ impl Mesh {
             position: Vec3::ZERO,
             rotation: Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, 0.0),
             scale: Vec3::ONE,
-            texture: Texture::None,
+            texture: 0,
             shader: *DEFAULT_SHADER,
+            parent: None,
+            children: Vec::new(),
         };
 
         mesh
@@ -71,8 +75,8 @@ impl Mesh {
         self.shader = shader;
     }
 
-    pub fn set_texture(&mut self, texture: Texture) {
-        self.texture = texture;
+    pub fn set_texture(&mut self, texture_name: &str, renderer: &Renderer) {
+        self.texture = renderer.get_texture(texture_name.to_owned());
         unsafe {
             self.shader.uniform_1i(cstr!("has_texture"), 1);
         }
@@ -90,16 +94,61 @@ impl Mesh {
         new_mesh
     }
 
+    pub fn set_parent(&mut self, parent: Mesh){
+        self.parent = Some(Box::new(parent));
+    }
+
+    pub fn add_child(&mut self, mut child: Mesh){
+        child.set_parent(self.clone());
+        self.children.push(Box::new(child));
+    }
+
+    pub fn set_color(&mut self, color: Vec4){
+        for vert in self.vertices.iter_mut(){
+            vert.color = color;
+        }
+    }
+
     pub fn set_position(&mut self, position: Vec3){
         self.position = position;
+        for child in self.children.as_mut_slice(){
+            child.set_position(position + child.position)
+        }
     }
 
     pub fn add_position(&mut self, position: Vec3){
         self.position += position;
+        for child in self.children.as_mut_slice(){
+            child.add_position(position)
+        }
+    }
+
+    pub fn set_scale(&mut self, scale: Vec3){
+        self.scale = scale;
+        for child in self.children.as_mut_slice(){
+            child.set_scale(scale);
+        }
     }
 
     pub fn scale(&mut self, scale: Vec3){
         self.scale *= scale;
+        for child in self.children.as_mut_slice(){
+            child.scale(scale);
+        }
+    }
+
+    pub fn set_rotation(&mut self, rotation: Quat){
+        self.rotation = rotation;
+        for child in self.children.as_mut_slice(){
+            child.set_rotation(rotation);
+        }
+    }
+
+    pub fn rotate(&mut self, rotation: Quat){
+        self.rotation = self.rotation + rotation;
+        for child in self.children.as_mut_slice(){
+            child.rotate(rotation);
+        }
     }
 
     pub fn setup_mesh(&mut self) {
@@ -114,16 +163,7 @@ impl Mesh {
             bind_buffer!(ELEMENT_ARRAY_BUFFER, self.EBO, self.indices);
             gen_attrib_pointers!(Vertex, 0 => position: 3, 1 => color: 4, 2 => tex_coords: 2, 3 => normal: 3);
     
-            if let Texture::Path(ref path) = self.texture {
-                self.texture = Texture::Loaded(load_texture(path));
-                // Bind the texture if it is loaded
-                if let Texture::Loaded(texture_id) = self.texture {
-                    gl::BindTexture(gl::TEXTURE_2D, texture_id);
-                }
-            }
-            else{
-                self.texture = Texture::Loaded(0);
-            }
+            gl::BindTexture(gl::TEXTURE_2D, self.texture);
 
             BindVertexArray(0);
         }
@@ -148,9 +188,8 @@ impl Mesh {
         // Set uniforms and draw
         self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
         self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
-        if let Texture::Loaded(texture_id) = self.texture {
-            BindTexture(TEXTURE_2D, texture_id);
-        }
+        
+        BindTexture(TEXTURE_2D, self.texture);
 
         DrawElements(TRIANGLES, self.indices.len() as i32, UNSIGNED_INT, ptr::null());
 

@@ -5,13 +5,10 @@ use tobj::LoadOptions;
 
 use crate::{EventLoop, Mesh, Renderer, Texture, Vertex};
 
-use super::texture;
-
 #[derive(Default)]
 pub struct Model {
     pub meshes: Vec<Mesh>,
     pub loaded_textures: Vec<Texture>,
-    directory: String,
 }
 
 impl Model {
@@ -66,7 +63,7 @@ impl Model {
         let path = Path::new(path);
 
         let obj = tobj::load_obj(path, &LoadOptions::default()).expect("Failed to load OBJ file");
-        let (models, materials) = obj;
+        let (models, _) = obj;
 
         for model in models {
             let mesh = &model.mesh;
@@ -96,18 +93,6 @@ impl Model {
             }
 
             let mut final_mesh = Mesh::new(&vertices, &indices);
-
-            if let Ok(ref materials) = materials {
-                if let Some(material_id) = mesh.material_id {
-                    let material = &materials[material_id];
-
-                    // diffuse map
-                    if let Some(diffuse_texture) = &material.diffuse_texture {
-                        let texture = self.load_texture(diffuse_texture);
-                        final_mesh.set_texture(texture);
-                    }
-                }
-            }
 
             for face in &mut final_mesh.indices.chunks_mut(6) {
                 face.reverse();

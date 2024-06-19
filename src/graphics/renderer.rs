@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ffi::CString};
 
-use gl::UseProgram;
+use gl::{types::GLuint, UseProgram};
 use glam::{vec3, Vec2, Vec3, Vec4};
 
 use crate::{cstr, load_texture, Camera, EventLoop, InstanceMesh, Light, Model, Shader, Texture, DEFAULT_SHADER, FULL_SHADER, INSTANCE_SHADER, LIGHT_SHADER};
@@ -33,6 +33,8 @@ pub struct Renderer {
     pub lights: HashMap<String, Light>,
 
     pub camera: Camera,
+
+    textures: HashMap<String, GLuint>,
 }
 
 impl Renderer {
@@ -47,12 +49,19 @@ impl Renderer {
             lights: HashMap::new(),
 
             camera,
+            textures: HashMap::new(),
         }
     }
 
-    pub unsafe fn draw(&self, el: &EventLoop) {
-        let time = el.time;
+    pub fn add_texture(&mut self, texture_name: String, texture_path: String){
+        self.textures.insert(texture_name, unsafe { load_texture(&texture_path) });
+    }
 
+    pub fn get_texture(&self, texture_name: String) -> GLuint{
+        *self.textures.get(&texture_name).unwrap()
+    }
+
+    pub unsafe fn draw(&self, el: &EventLoop) {
         INSTANCE_SHADER.use_shader();
         self.camera.send_uniforms(&INSTANCE_SHADER);
         UseProgram(0);
