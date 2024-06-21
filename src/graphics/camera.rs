@@ -156,13 +156,6 @@ impl Camera {
         self.yaw += xoffs;
         self.pitch += yoffs;
 
-        if self.pitch > 89.0 {
-            self.pitch = 89.0;
-        } 
-        if self.pitch < -89.0 {
-            self.pitch = -89.0;
-        }
-
         self.direction.x = self.yaw.to_radians().cos() * self.pitch.to_radians().cos();
         self.direction.y = self.pitch.to_radians().sin();
         self.direction.z = self.yaw.to_radians().sin() * self.pitch.to_radians().cos();

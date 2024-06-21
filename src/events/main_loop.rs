@@ -30,10 +30,6 @@ impl EventLoop {
         let mut glfw = glfw::init(fail_on_errors!()).unwrap();
         
         glfw.window_hint(glfw::WindowHint::TransparentFramebuffer(true));
-        unsafe {
-            BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-            Enable(BLEND | DEPTH_TEST);
-        }
 
         let (mut window, events) = glfw.create_window(w, h, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
@@ -50,6 +46,11 @@ impl EventLoop {
 
 
         gl::load_with(|s| window.get_proc_address(s) );
+
+        unsafe {
+            BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+            Enable(BLEND | DEPTH_TEST);
+        }
     
         let mut event_handler = EventHandler::new();
         event_handler.on_window_resize(w as i32, h as i32);

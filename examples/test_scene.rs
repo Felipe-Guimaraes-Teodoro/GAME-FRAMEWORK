@@ -6,7 +6,7 @@ use glfw::Key;
 use imgui::ImColor32;
 use tiny_game_framework::gl::{Clear, COLOR_BUFFER_BIT};
 use tiny_game_framework::glam::{vec2, vec3, vec4, Vec4};
-use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, renderer_inspector, Cuboid, EventLoop, Font, InstanceData, Light, Line, ShaderType, Sphere, Texture};
+use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, renderer_inspector, Cuboid, EventLoop, Font, InstanceData, Light, ShaderType, Sphere, Texture};
 use tiny_game_framework::Renderer;
 
 fn main() {
@@ -29,20 +29,20 @@ fn main() {
     let roblux_tex = Texture::Path("examples/assets/images/hqdefault.jpg".into());
     let mut c = Cuboid::new(vec3(200., 200., 200.), vec4(1.0, 0.0, 0.0, 1.0)).mesh();
     c.set_shader_type(&ShaderType::Full);
-    c.set_texture(cobble_tex.clone());
+    // c.set_texture(cobble_tex.clone());
     c.setup_mesh();
     renderer.add_mesh("c", c).unwrap();
 
     let mut s = Sphere::new(32, 500., Vec4::ONE).mesh();
     s.set_shader_type(&ShaderType::Full);
-    s.set_texture(cobble_tex);
+    // s.set_texture(cobble_tex);
     s.setup_mesh();
     s.add_position(vec3(1500., 0., 0.));
     s.scale(vec3(20.0, 20.0, 20.0));
     renderer.add_mesh("s", s).unwrap();
 
     let mut t = Sphere::new(32, 10000., vec4(0.1, 0.2, 0.3, 1.0)).mesh();
-    t.set_texture(roblux_tex);
+    // t.set_texture(roblux_tex);
     for face in t.indices.chunks_mut(6) {
         face.reverse();
     }
