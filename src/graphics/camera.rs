@@ -136,7 +136,7 @@ impl Camera {
     ) {
         if window.get_cursor_mode() != glfw::CursorMode::Disabled {
             self.first_mouse = true;
-            return 
+            // return 
         };
         if self.first_mouse { 
             self.last_x = xpos;
