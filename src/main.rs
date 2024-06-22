@@ -16,6 +16,7 @@ fn main() {
 
     unsafe {
         Enable(DEPTH_TEST);
+        Enable(CULL_FACE);
     }
     
     let cobble_tex = "examples/assets/images/cobble_tex.png";
@@ -24,40 +25,34 @@ fn main() {
     renderer.add_texture("cobble".to_owned(), cobble_tex.to_owned());
     renderer.add_texture("roblux".to_owned(), roblux_tex.to_owned());
 
-    let mut c = Cuboid::new(vec3(200., 200., 200.), vec4(1.0, 0.0, 0.0, 1.0)).mesh();
+    let mut c = Cuboid::new(vec3(1., 1., 1.), vec4(1.0, 0.0, 0.0, 1.0)).mesh();
     c.set_shader_type(&ShaderType::Full);
     c.set_texture("cobble", &renderer);
     c.setup_mesh();
     renderer.add_mesh("c", c).unwrap();
 
-    let mut c2 = Cuboid::new(Vec3::ONE*150., vec4(0.0, 0.0, 1.0, 0.0)).mesh();
+    let mut c2 = Cuboid::new(Vec3::ONE*1.5, vec4(0.0, 0.0, 1.0, 0.0)).mesh();
     c2.set_shader_type(&ShaderType::Full);
     c2.set_texture("cobble", &renderer);
     c2.setup_mesh();
-    c2.add_position(vec3(300., 0., 0.));
+    c2.add_position(vec3(3., 0., 0.));
     renderer.add_mesh("c2", c2).unwrap();
 
     //renderer.get_mesh("c").unwrap().clone().add_child(renderer.get_mesh("c2").unwrap().clone());
 
-    let mut s = Sphere::new(128, 500., Vec4::ONE).mesh();
+    let mut s = Sphere::new(128, 5., Vec4::ONE).mesh();
     s.set_shader_type(&ShaderType::Full);
     s.set_texture("cobble", &renderer);
     s.setup_mesh();
-    s.add_position(vec3(1500., 0., 0.));
-    s.scale(vec3(20.0, 20.0, 20.0));
+    s.add_position(vec3(1.5, 0., 0.));
     renderer.add_mesh("s", s).unwrap();
 
-    let mut t = Sphere::new(32, 10000., vec4(0.1, 0.2, 0.3, 1.0)).mesh();
+    let mut t = Sphere::new(32, 100., vec4(0.1, 0.2, 0.3, 1.0)).mesh();
     t.set_texture("roblux", &renderer);
-    for face in t.indices.chunks_mut(6) {
-        face.reverse();
-    }
 
     t.setup_mesh();
-    t.add_position(vec3(1500., 0., 0.));
-    t.scale(vec3(20.0, 20.0, 20.0));
+    t.add_position(vec3(1.5, 0., 0.));
     renderer.add_mesh("t", t).unwrap();
-
 
     renderer.add_light("light1", Light {position: vec3(100000.0, 100000.0, 100000.0), color: vec3(0.0, 0.0, 1.0)});
     renderer.add_light("light2", Light {position: vec3(-100000.0, 100000.0, 100000.0), color: vec3(0.0, 1.0, 0.0)});
@@ -105,7 +100,7 @@ fn main() {
         }
         m.add_position(pos);
 
-        let cam_pos = renderer.camera.pos * resolution.x;
+        let cam_pos = renderer.camera.pos;
 
         let t = renderer.get_mesh_mut("t").unwrap();
         t.position = cam_pos;

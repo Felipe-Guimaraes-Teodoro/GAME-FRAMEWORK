@@ -85,11 +85,11 @@ impl Renderer {
         }
         
         for value in &self.meshes {
-            value.1.draw(&el);
+            value.1.draw();
         }
 
         for model in &self.models {
-            model.1.draw(&el);
+            model.1.draw();
         }
     }
 }

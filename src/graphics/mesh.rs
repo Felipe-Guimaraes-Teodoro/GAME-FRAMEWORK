@@ -169,17 +169,11 @@ impl Mesh {
         }
     }
     
-    pub unsafe fn draw(&self, el: &EventLoop) {
-        let (w, h) = el.window.get_framebuffer_size();
-        let resolution = w.max(h) as f32;
-
-        let norm_position = self.position / resolution;
-        let norm_scale = self.scale / resolution;
-
+    pub unsafe fn draw(&self) {
         let model_matrix = 
-            Mat4::from_translation(norm_position) *
+            Mat4::from_translation(self.position) *
             Mat4::from_quat(self.rotation) *
-            Mat4::from_scale(norm_scale);
+            Mat4::from_scale(self.scale);
 
         BindVertexArray(self.VAO);
         self.shader.use_shader();
@@ -187,7 +181,7 @@ impl Mesh {
 
         // Set uniforms and draw
         self.shader.uniform_mat4fv(cstr!("model"), &model_matrix.to_cols_array());
-        self.shader.uniform_vec3f(cstr!("pos"), &norm_position);
+        self.shader.uniform_vec3f(cstr!("pos"), &self.position);
         
         BindTexture(TEXTURE_2D, self.texture);
 

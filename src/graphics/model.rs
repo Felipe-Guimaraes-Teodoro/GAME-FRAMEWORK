@@ -110,9 +110,9 @@ impl Model {
         texture
     }
 
-    pub unsafe fn draw(&self, el: &EventLoop) {
+    pub unsafe fn draw(&self) {
         for mesh in &self.meshes {
-            mesh.draw(&el);
+            mesh.draw();
         }
     } 
 }
