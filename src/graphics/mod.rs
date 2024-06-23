@@ -11,6 +11,7 @@ mod shader_types;
 mod light;
 mod font;
 mod model;
+mod particle;
 
 pub use shader_types::*;
 pub use texture::*;
@@ -25,3 +26,4 @@ pub use instance_mesh::*;
 pub use light::*;
 pub use font::*;
 pub use model::*;
+pub use particle::*;

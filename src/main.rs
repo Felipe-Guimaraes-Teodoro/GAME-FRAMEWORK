@@ -4,7 +4,7 @@ use glfw::Key;
 use imgui::ImColor32;
 use tiny_game_framework::gl::{Clear, COLOR_BUFFER_BIT};
 use tiny_game_framework::glam::{vec2, vec3, vec4, Vec4};
-use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, renderer_inspector, Circle, Cuboid, EventLoop, Font, InstanceData, Light, Quad, ShaderType, Sphere, Texture};
+use tiny_game_framework::{lerp, rand_betw, rand_vec2, rand_vec3, rand_vec4, renderer_inspector, Circle, Cuboid, EventLoop, Font, InstanceData, Light, Particle, Quad, ShaderType, Sphere, Texture};
 use tiny_game_framework::Renderer;
 
 fn main() {
@@ -16,7 +16,8 @@ fn main() {
 
     unsafe {
         Enable(DEPTH_TEST);
-        Enable(CULL_FACE);
+        // Enable(CULL_FACE);
+        CullFace(FRONT);
     }
     
     let cobble_tex = "examples/assets/images/cobble_tex.png";
@@ -49,6 +50,10 @@ fn main() {
 
     let mut t = Sphere::new(32, 100., vec4(0.1, 0.2, 0.3, 1.0)).mesh();
     t.set_texture("roblux", &renderer);
+    // funky effect
+    for face in t.vertices.chunks_mut(2) {
+        face.reverse();
+    }
 
     t.setup_mesh();
     t.add_position(vec3(1.5, 0., 0.));
@@ -58,6 +63,8 @@ fn main() {
     renderer.add_light("light2", Light {position: vec3(-100000.0, 100000.0, 100000.0), color: vec3(0.0, 1.0, 0.0)});
     renderer.add_light("light3", Light {position: vec3(-100000.0, 100000.0, -100000.0), color: vec3(1.0, 0.0, 0.0)});
 
+    let mut particle = Particle::new(vec3(1.0, 1.0, 1.0), vec3(5.0, 3.0, 0.0), 100000, 0.01, true, 0.1);
+    renderer.add_particle("particle", particle);
 
     renderer.camera.speed = 0.5;
     let mut fullscreen = false;
@@ -65,6 +72,7 @@ fn main() {
     let mut a = 0.;
     while !el.window.should_close() {
         el.update();
+        renderer.update(&el);
 
         renderer.camera.input(&el.window, &el.window.glfw);
         renderer.camera.mouse_callback(el.event_handler.mouse_pos.x, el.event_handler.mouse_pos.y, &el.window);
@@ -82,7 +90,6 @@ fn main() {
 
         let c2_mesh = renderer.get_mesh_mut("c2").unwrap();
         c2_mesh.set_color(vec4(rand_betw(0., 1.), rand_betw(0., 1.), rand_betw(0., 1.), a));
-        println!("{}", a);
 
         let m = renderer.get_mesh_mut("c").unwrap();
         let mut pos = Vec3::ZERO;

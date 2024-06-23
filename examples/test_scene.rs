@@ -92,6 +92,8 @@ fn main() {
         let t = renderer.get_mesh_mut("t").unwrap();
         // t.position = cam_pos;
 
+
+
         let frame = el.ui.frame(&mut el.window);
 
         { // ui shenanigans
@@ -138,7 +140,6 @@ fn main() {
 
         let l3 = renderer.get_light_mut("light3").unwrap();
         l3.position = vec3(el.time.sin() * 10000.0, el.time.cos() * 10000.0, 10000.0);
-
 
         let direction = renderer.camera.front;
         let right = direction.cross(vec3(0.0, 1.0, 0.0));

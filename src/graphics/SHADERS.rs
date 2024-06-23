@@ -210,3 +210,42 @@ void main()
     FragColor = vec4(fColor);
 }
 "#;
+
+
+pub static PARTICLE_SHADER_VS: &str = r#"
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
+layout (location = 2) in vec3 position;
+
+uniform mat4 view;
+uniform mat4 proj;
+uniform mat4 model;
+
+out vec4 fColor;
+
+void main() {
+    // extract the right and up vectors from the view matrix
+    vec3 right = vec3(view[0][0], view[1][0], view[2][0]);
+    vec3 up = vec3(view[0][1], view[1][1], view[2][1]);
+
+    vec3 billboardPos = position + aPos.x * right + aPos.y * up;
+
+    gl_Position = proj * view * model * vec4(billboardPos, 1.0);
+
+    fColor = aColor;
+}
+
+"#;
+
+pub static PARTICLE_SHADER_FS: &str = r#"
+#version 330 core
+out vec4 FragColor;
+
+in vec4 fColor;
+
+void main()
+{
+    FragColor = vec4(fColor);
+}
+"#;

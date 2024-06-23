@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::CString};
 use gl::{types::GLuint, UseProgram};
 use glam::{vec3, Vec2, Vec3, Vec4};
 
-use crate::{cstr, load_texture, Camera, EventLoop, InstanceMesh, Light, Model, Shader, Texture, DEFAULT_SHADER, FULL_SHADER, INSTANCE_SHADER, LIGHT_SHADER};
+use crate::{cstr, load_texture, Camera, EventLoop, InstanceMesh, Light, Model, Particle, Shader, Texture, DEFAULT_SHADER, FULL_SHADER, INSTANCE_SHADER, LIGHT_SHADER, PARTICLE_SHADER};
 
 use super::Mesh;
 
@@ -31,6 +31,7 @@ pub struct Renderer {
     pub meshes: HashMap<String, Mesh>,
     pub instance_meshes: HashMap<String, InstanceMesh>,
     pub lights: HashMap<String, Light>,
+    pub particles: HashMap<String, Particle>,
 
     pub camera: Camera,
 
@@ -47,6 +48,7 @@ impl Renderer {
             meshes: HashMap::new(),
             instance_meshes: HashMap::new(),
             lights: HashMap::new(),
+            particles: HashMap::new(),
 
             camera,
             textures: HashMap::new(),
@@ -61,9 +63,19 @@ impl Renderer {
         *self.textures.get(&texture_name).unwrap()
     }
 
+    pub fn update(&mut self, el: &EventLoop) {
+        for particle in self.particles.values_mut() {
+            particle.update(&el);
+        }
+    }
+
     pub unsafe fn draw(&self, el: &EventLoop) {
         INSTANCE_SHADER.use_shader();
         self.camera.send_uniforms(&INSTANCE_SHADER);
+        UseProgram(0);
+
+        PARTICLE_SHADER.use_shader();
+        self.camera.send_uniforms(&PARTICLE_SHADER);
         UseProgram(0);
 
         DEFAULT_SHADER.use_shader();
@@ -80,6 +92,7 @@ impl Renderer {
         self.send_light_uniforms(&FULL_SHADER);
         UseProgram(0);
 
+
         for value in &self.instance_meshes {
             value.1.draw(&el);
         }
@@ -90,6 +103,10 @@ impl Renderer {
 
         for model in &self.models {
             model.1.draw();
+        }
+
+        for particle in &self.particles {
+            particle.1.draw();
         }
     }
 }
